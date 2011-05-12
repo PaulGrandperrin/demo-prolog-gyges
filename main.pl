@@ -100,8 +100,13 @@ coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 
 %%%
 
-%coup_valide(Plateau,Trajet, Coup):-	Coup = [Depart,Arrive],		%Coup dans remplacement
-					
+coup_valide(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-%Coup sans remplacement
+	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
+
+coup_valide(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-%Coup sans remplacement
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
+	coup_valide(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
+	
 
 
 %coup_valide(Plateau,Trajet, Coup):-Coup = [Depart,Arrivee,Deplacement].
