@@ -2,7 +2,7 @@
 %Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionDéplacé]
 %Lien: [caseA,caseB]
 
-plateau_depart([[[1,4],[1,6],[6,1],[6,6]],[[1,3],[1,5],[6,2],[6,5]],[[1,1],[1,2],[6,3],[6,4]],s]).
+plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
 
 
 pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
@@ -16,12 +16,12 @@ affiche_elem(_,_):-write(' . ').
 
 affiche_ligne(Plateau,Ligne):-
 	write('\t|'),
-	affiche_elem(Plateau,[Ligne,1]),
-	affiche_elem(Plateau,[Ligne,2]),
-	affiche_elem(Plateau,[Ligne,3]),
-	affiche_elem(Plateau,[Ligne,4]),
-	affiche_elem(Plateau,[Ligne,5]),
-	affiche_elem(Plateau,[Ligne,6]),
+	affiche_elem(Plateau,[1,Ligne]),
+	affiche_elem(Plateau,[2,Ligne]),
+	affiche_elem(Plateau,[3,Ligne]),
+	affiche_elem(Plateau,[4,Ligne]),
+	affiche_elem(Plateau,[5,Ligne]),
+	affiche_elem(Plateau,[6,Ligne]),
 	write('|\n').
 
 affiche_plateau(Plateau):-
