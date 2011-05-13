@@ -2,16 +2,16 @@
 %Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionDéplacé]
 %Lien: [caseA,caseB]
 
-plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
+plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
 
 
 pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
 pions_double(Plateau,Pions):-nth(2,Plateau,Pions).
 pions_triple(Plateau,Pions):-nth(3,Plateau,Pions).
 
-affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!. %rouge
-affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write(' 2 '),!. %rouge
-affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write(' 3 '),!. %rouge
+affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!.
+affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write(' 2 '),!.
+affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write(' 3 '),!.
 affiche_elem(_,_):-write(' . ').
 
 affiche_ligne(Plateau,Ligne):-
@@ -34,10 +34,20 @@ affiche_plateau(Plateau):-
 	affiche_ligne(Plateau,1),
 	write('\t+------------------+\n').
 
+domaine(1).
+domaine(2).
+domaine(3).
+domaine(4).
+domaine(5).
+domaine(6).
 
-position_occupee(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),!. %vert
-position_occupee(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),!. %vert
-position_occupee(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),!. %vert
+position_sur_plateau([X,Y]):-domaine(X),domaine(Y).
+
+position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_simple(Plateau,Pions),member(Position,Pions).
+position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_double(Plateau,Pions),member(Position,Pions).
+position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_triple(Plateau,Pions),member(Position,Pions).
+
+position_libre(Plateau,Position):-position_sur_plateau(Position),pions_simple(Plateau,Pions_simple),\+(member(Position,Pions_simple)),pions_double(Plateau,Pions_double),\+(member(Position,Pions_double)),pions_triple(Plateau,Pions_triple),\+(member(Position,Pions_triple)).
 
 plusun(1,2).
 plusun(2,3).
@@ -100,14 +110,47 @@ coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 
 %%%
 
-coup_valide(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-%Coup sans remplacement
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[1,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[2,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[3,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[4,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[5,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[6,Ligne]).
+
+
+lignes_dessus_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
+lignes_dessus_contiennent_pions(Plateau,Ligne):-plusun(Ligne2,Ligne),lignes_dessus_contiennent_pions(Plateau,Ligne2).
+
+lignes_dessous_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
+lignes_dessous_contiennent_pions(Plateau,Ligne):-plusun(Ligne,Ligne2),lignes_dessus_contiennent_pions(Plateau,Ligne2).
+
+position_apres_remplacement_valide(Plateau,[X,Y]):-
+	nth(4,Plateau,s),	%c'est à Sud de jouer
+	lignes_dessus_contiennent_pions(Plateau,Y),
+	position_libre(Plateau,[X,Y]).
+
+position_apres_remplacement_valide(Plateau,[X,Y]):-
+	nth(4,Plateau,n),	%c'est à Nord de jouer
+	lignes_dessous_contiennent_pions(Plateau,Y),
+	position_libre(Plateau,[X,Y]).
+
+%%%
+
+coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-	%Coup sans remplacement
 	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
 
-coup_valide(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-%Coup sans remplacement
+coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-	%Coup sans remplacement
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
-	coup_valide(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
+	coup_sans_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
 	
 
 
-%coup_valide(Plateau,Trajet, Coup):-Coup = [Depart,Arrivee,Deplacement].
+coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-	%Coup avec remplacement
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
+	position_apres_remplacement_valide(Plateau,Remplacement).
+
+coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-	%Coup avec remplacement
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
+	coup_avec_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
+
 
