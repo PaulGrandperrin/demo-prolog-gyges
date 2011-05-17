@@ -6,7 +6,7 @@
 %plateau_depart(-Plateau): Défini le plateau de départ
 plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
 
-%Definie le domaine de validité des abscisses et ordonnées
+%domaine(-_):Definie le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
 domaine(3).
