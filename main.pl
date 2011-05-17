@@ -1,19 +1,38 @@
+%Typage:
 %Coordonnées d'une case: [x,y] avec x et y entre 1 et 6
 %Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionDéplacé]
 %Lien: [caseA,caseB]
 
+%plateau_depart(-Plateau): Défini le plateau de départ
 plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
 
+%Definie le domaine de validité des abscisses et ordonnées
+domaine(1).
+domaine(2).
+domaine(3).
+domaine(4).
+domaine(5).
+domaine(6).
 
+%Définie l'ordre du domaine
+plusun(1,2).
+plusun(2,3).
+plusun(3,4).
+plusun(4,5).
+plusun(5,6).
+
+%pions_xxxxx(+Plateau,-Pions)
 pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
 pions_double(Plateau,Pions):-nth(2,Plateau,Pions).
 pions_triple(Plateau,Pions):-nth(3,Plateau,Pions).
 
+%affiche_elem(+Plateau,+Position)
 affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!.
 affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write(' 2 '),!.
 affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write(' 3 '),!.
 affiche_elem(_,_):-write(' . ').
 
+%affiche_ligne(+Plateau,+Ligne)
 affiche_ligne(Plateau,Ligne):-
 	write('\t|'),
 	affiche_elem(Plateau,[1,Ligne]),
@@ -24,6 +43,7 @@ affiche_ligne(Plateau,Ligne):-
 	affiche_elem(Plateau,[6,Ligne]),
 	write('|\n').
 
+%affiche_plateau(+Plateau)
 affiche_plateau(Plateau):-
 	write('\t+------------------+\n'),
 	affiche_ligne(Plateau,6),
@@ -34,42 +54,45 @@ affiche_plateau(Plateau):-
 	affiche_ligne(Plateau,1),
 	write('\t+------------------+\n').
 
-domaine(1).
-domaine(2).
-domaine(3).
-domaine(4).
-domaine(5).
-domaine(6).
 
+%position_sur_plateau([?X,?Y]): Défini si une position est sur le plateau ou non.
 position_sur_plateau([X,Y]):-domaine(X),domaine(Y).
 
+%position_occupee(+Plateau,?Position): Défini si une position est déjà occupée par un pion.
 position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_simple(Plateau,Pions),member(Position,Pions).
 position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_double(Plateau,Pions),member(Position,Pions).
 position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_triple(Plateau,Pions),member(Position,Pions).
 
-position_libre(Plateau,Position):-position_sur_plateau(Position),pions_simple(Plateau,Pions_simple),\+(member(Position,Pions_simple)),pions_double(Plateau,Pions_double),\+(member(Position,Pions_double)),pions_triple(Plateau,Pions_triple),\+(member(Position,Pions_triple)).
+%position_libre(+Plateau,?Position): Défini si une position n'est pas occupé par un pion.
+position_libre(Plateau,Position):-
+	position_sur_plateau(Position),
+	pions_simple(Plateau,Pions_simple),\+(member(Position,Pions_simple)),
+	pions_double(Plateau,Pions_double),\+(member(Position,Pions_double)),
+	pions_triple(Plateau,Pions_triple),\+(member(Position,Pions_triple)).
 
-plusun(1,2).
-plusun(2,3).
-plusun(3,4).
-plusun(4,5).
-plusun(5,6).
 
+%deplacement_xxxx([?DX,?DY],[?AX,?AY]): Défini si deux positions sont distante d'un déplacement vers la droite/gauche/haut/bas.
 deplacement_gauche([DX,Y],[AX,Y]):-plusun(AX,DX).
 deplacement_droite([DX,Y],[AX,Y]):-plusun(DX,AX).
 deplacement_haut([X,DY],[X,AY]):-plusun(AY,DY).
 deplacement_bas([X,DY],[X,AY]):-plusun(DY,AY).
 
+%deplacement_sur_plateau(?DX,?DY],[?AX,?AY]): Défini si deux positions peuvent être jointe par un déplacement en croix.
 deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_gauche([DX,DY],[AX,AY]).
 deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_droite([DX,DY],[AX,AY]).
 deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_haut([DX,DY],[AX,AY]).
 deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_bas([DX,DY],[AX,AY]).
 
+%deplacement_possible_vers_libre(+Plateau,+Trajet,[-DX,-DY],[+AX,+AY]): 
+%Défini les mouvements d'une case possible d'un pion vers une case libre en prenant en compte le trajet déjà parcouru
+%(c'est a dire en évitant de passer deux fois par le même lien).
 deplacement_possible_vers_libre(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
 	\+(position_occupee(Plateau,[AX,AY])),
 	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
+%deplacement_possible_vers_occupee(+Plateau,+Trajet,[-DX,-DY],[+AX,+AY]): 
+%Idem que deplacement_possible_vers_libre sauf que seul les déplacements vers des cases occupées sont autorisés.
 deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
 	position_occupee(Plateau,[AX,AY]),
