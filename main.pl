@@ -6,7 +6,7 @@
 %plateau_depart(-Plateau): Défini le plateau de départ
 plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
 
-%domaine(-_):Definie le domaine de validité des abscisses et ordonnées
+%domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
 domaine(3).
@@ -98,7 +98,8 @@ deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	position_occupee(Plateau,[AX,AY]),
 	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
-
+%coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
+%Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
 coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_simple(Plateau,Pions_simple),member(Depart,Pions_simple),	%Le pion de départ est un pion simple
 	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Arrive),TrajetApres=[[Depart,Arrive]|TrajetAvant].
@@ -115,6 +116,8 @@ coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	deplacement_possible_vers_libre(Plateau,TrajetInter2,Intermediaire2,Arrive),TrajetApres=[[Intermediaire2,Arrive]|TrajetInter2].
 
 
+%coup_simple_vers_occupee(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
+%Idem que coup_simple_vers_libre sauf que la case finale est occupee (sert pour definir les coups avec rebonds)
 coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_simple(Plateau,Pions_simple),member(Depart,Pions_simple),	%Le pion de départ est un pion simple
 	deplacement_possible_vers_occupee(Plateau,TrajetAvant,Depart,Arrive),TrajetApres=[[Depart,Arrive]|TrajetAvant].
@@ -131,8 +134,10 @@ coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	deplacement_possible_vers_occupee(Plateau,TrajetInter2,Intermediaire2,Arrive),TrajetApres=[[Intermediaire2,Arrive]|TrajetInter2].
 
 
-%%%
+%%% Ces predicats servent à définir si une position de remplacement est valide pour un pion
 
+%ligne_contient_pions(+Plateau,?Ligne)
+%Defini si une ligne contient est libre ou non
 ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[1,Ligne]).
 ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[2,Ligne]).
 ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[3,Ligne]).
@@ -140,13 +145,18 @@ ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[4,Ligne]).
 ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[5,Ligne]).
 ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[6,Ligne]).
 
-
+%lignes_dessus_contiennent_pions(+Plateau,?Ligne)
+%Defini si les lignes au dessus de Ligne (et contenant Ligne) sont occupee
 lignes_dessus_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
 lignes_dessus_contiennent_pions(Plateau,Ligne):-plusun(Ligne2,Ligne),lignes_dessus_contiennent_pions(Plateau,Ligne2).
 
+%lignes_dessous_contiennent_pions(+Plateau,?Ligne)
+%Idem que lignes_dessus_contiennent_pions mais pour les lignes en dessous
 lignes_dessous_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
 lignes_dessous_contiennent_pions(Plateau,Ligne):-plusun(Ligne,Ligne2),lignes_dessus_contiennent_pions(Plateau,Ligne2).
 
+%position_apres_remplacement_valide(+Plateau,[?X,?Y])
+%Defini si une position après remplacement est valide en fonction du plateau et du joueur qui joue le coup
 position_apres_remplacement_valide(Plateau,[X,Y]):-
 	nth(4,Plateau,s),	%c'est à Sud de jouer
 	lignes_dessus_contiennent_pions(Plateau,Y),
@@ -157,23 +167,27 @@ position_apres_remplacement_valide(Plateau,[X,Y]):-
 	lignes_dessous_contiennent_pions(Plateau,Y),
 	position_libre(Plateau,[X,Y]).
 
-%%%
+%%% Prédicats "End-User"
 
-coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-	%Coup sans remplacement
+%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
+%Defini un coup entier sans remplacement
+coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
 	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
 
-coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-	%Coup sans remplacement
+coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
 	coup_sans_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
 	
 
-
-coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-	%Coup avec remplacement
+%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
+%Defini un coup entier avec remplacement
+coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
 	position_apres_remplacement_valide(Plateau,Remplacement).
 
-coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-	%Coup avec remplacement
+coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
 	coup_avec_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
+
 
 
