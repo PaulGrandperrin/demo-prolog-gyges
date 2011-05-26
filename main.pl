@@ -25,6 +25,7 @@ plusun(5,6).
 pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
 pions_double(Plateau,Pions):-nth(2,Plateau,Pions).
 pions_triple(Plateau,Pions):-nth(3,Plateau,Pions).
+joueur(Plateau,Joueur):-nth(4,Plateau,Joueur).
 
 %affiche_elem(+Plateau,+Position)
 affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!.
@@ -190,4 +191,40 @@ coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacem
 	coup_avec_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
 
 
+%%%
+
+appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):- 
+	pions_simple(PlateauIN,ListPionIN),
+	member(Depart,ListPionIN),
+	delete(ListPionIN,Depart,ListPionTemp),
+	append(ListPionTemp,[Arrive],ListPionOUT),
+	pions_double(PlateauIN,Pions2),
+	pions_triple(PlateauIN,Pions3),
+	joueur(PlateauIN,Joueur),
+	PlateauOUT=[ListPionOUT,Pions2,Pions3,Joueur].
+	
+appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+	pions_double(PlateauIN,ListPionIN),
+	member(Depart,ListPionIN),
+	delete(ListPionIN,Depart,ListPionTemp),
+	append(ListPionTemp,[Arrive],ListPionOUT),
+	pions_simple(PlateauIN,Pions1),
+	pions_triple(PlateauIN,Pions3),
+	joueur(PlateauIN,Joueur),
+	PlateauOUT=[Pions1,ListPionOUT,Pions3,Joueur].
+
+appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+	pions_triple(PlateauIN,ListPionIN),
+	member(Depart,ListPionIN),
+	delete(ListPionIN,Depart,ListPionTemp),
+	append(ListPionTemp,[Arrive],ListPionOUT),
+	pions_simple(PlateauIN,Pions1),
+	pions_double(PlateauIN,Pions2),
+	joueur(PlateauIN,Joueur),
+	PlateauOUT=[Pions1,Pions2,ListPionOUT,Joueur].
+
+
+
+%appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive,Remplacement]):-
+      
 
