@@ -1,6 +1,6 @@
 %Typage:
 %Coordonnées d'une case: [x,y] avec x et y entre 1 et 6
-%Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionDéplacé]
+%Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionRemplacé]
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ
@@ -14,7 +14,7 @@ domaine(4).
 domaine(5).
 domaine(6).
 
-%Définie l'ordre du domaine
+%Définit l'ordre du domaine
 plusun(1,2).
 plusun(2,3).
 plusun(3,4).
@@ -35,25 +35,25 @@ affiche_elem(_,_):-write(' . ').
 
 %affiche_ligne(+Plateau,+Ligne)
 affiche_ligne(Plateau,Ligne):-
-	write('\t|'),
+	write('\\t|'),
 	affiche_elem(Plateau,[1,Ligne]),
 	affiche_elem(Plateau,[2,Ligne]),
 	affiche_elem(Plateau,[3,Ligne]),
 	affiche_elem(Plateau,[4,Ligne]),
 	affiche_elem(Plateau,[5,Ligne]),
 	affiche_elem(Plateau,[6,Ligne]),
-	write('|\n').
+	write('|\\n').
 
 %affiche_plateau(+Plateau)
 affiche_plateau(Plateau):-
-	write('\t+------------------+\n'),
+	write('\\t+------------------+\\n'),
 	affiche_ligne(Plateau,6),
 	affiche_ligne(Plateau,5),
 	affiche_ligne(Plateau,4),
 	affiche_ligne(Plateau,3),
 	affiche_ligne(Plateau,2),
 	affiche_ligne(Plateau,1),
-	write('\t+------------------+\n').
+	write('\\t+------------------+\\n').
 
 
 %position_sur_plateau([?X,?Y]): Défini si une position est sur le plateau ou non.
@@ -67,9 +67,9 @@ position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_triple(
 %position_libre(+Plateau,?Position): Défini si une position n'est pas occupé par un pion.
 position_libre(Plateau,Position):-
 	position_sur_plateau(Position),
-	pions_simple(Plateau,Pions_simple),\+(member(Position,Pions_simple)),
-	pions_double(Plateau,Pions_double),\+(member(Position,Pions_double)),
-	pions_triple(Plateau,Pions_triple),\+(member(Position,Pions_triple)).
+	pions_simple(Plateau,Pions_simple),\\+(member(Position,Pions_simple)),
+	pions_double(Plateau,Pions_double),\\+(member(Position,Pions_double)),
+	pions_triple(Plateau,Pions_triple),\\+(member(Position,Pions_triple)).
 
 
 %deplacement_xxxx([?DX,?DY],[?AX,?AY]): Défini si deux positions sont distante d'un déplacement vers la droite/gauche/haut/bas.
@@ -89,15 +89,15 @@ deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_bas([DX,DY],[AX,AY]).
 %(c'est a dire en évitant de passer deux fois par le même lien).
 deplacement_possible_vers_libre(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
-	\+(position_occupee(Plateau,[AX,AY])),
-	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
+	\\+(position_occupee(Plateau,[AX,AY])),
+	\\+(member([[DX,DY],[AX,AY]],Trajet)),\\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
 %deplacement_possible_vers_occupee(+Plateau,+Trajet,[-DX,-DY],[+AX,+AY]): 
 %Idem que deplacement_possible_vers_libre sauf que seul les déplacements vers des cases occupées sont autorisés.
 deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
 	position_occupee(Plateau,[AX,AY]),
-	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
+	\\+(member([[DX,DY],[AX,AY]],Trajet)),\\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
 %coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
 %Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
@@ -226,5 +226,62 @@ appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
 
 
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive,Remplacement]):-
-      
 
+
+%%% UI
+  
+gyges(yes):-
+	%logo(yes),
+	menu(yes).
+
+% http://www.network-science.de/ascii/
+logo(yes):-
+	write('     ___                       ___           ___           ___     \n'),
+	write('    /\\__\\                     /\\__\\         /\\__\\         /\\__\\    \n'),
+	write('   /:/ _/_         ___       /:/ _/_       /:/ _/_       /:/ _/_   \n'),
+	write('  /:/ /\\  \\       /|  |     /:/ /\\  \\     /:/ /\\__\\     /:/ /\\  \\  \n'),
+	write(' /:/ /::\\  \\     |:|  |    /:/ /::\\  \\   /:/ /:/ _/_   /:/ /::\\  \\ \n'),
+	write('/:/__\\/\\:\\__\\    |:|  |   /:/__\\/\\:\\__\\ /:/_/:/ /\\__\\ /:/_/:/\\:\\__\\\n'),
+	write('\\:\\  \\ /:/  /  __|:|__|   \\:\\  \\ /:/  / \\:\\/:/ /:/  / \\:\\/:/ /:/  /\n'),
+	write(' \\:\\  /:/  /  /::::\\  \\    \\:\\  /:/  /   \\::/_/:/  /   \\::/ /:/  / \n'),
+	write('  \\:\\/:/  /   ~~~~\\:\\  \\    \\:\\/:/  /     \\:\\/:/  /     \\/_/:/  /  \n'),
+	write('   \\::/  /         \\:\\__\\    \\::/  /       \\::/  /        /:/  /   \n'),
+	write('    \\/__/           \\/__/     \\/__/         \\/__/         \\/__/    \n').
+
+menu(yes):-
+	write('\n1. Humain vs Machine\n'),
+	write('2. Humain vs Humain\n'),
+	write('3. Machine vs Machine\n\n'),
+	write('Mode de jeu ? '),
+	read(Mode),
+	jouer_mode(Mode).
+	
+jouer_mode(1):-
+	jouer_mode_1(P).
+jouer_mode(2).
+jouer_mode(3).
+
+jouer_mode_1(P):-
+	plateau_depart(P),
+	affiche_plateau(P),
+	write('Case de départ ? '),
+	read(X),
+	write('Case d’arrivée ? '),
+	read(Y),
+	jouer_mode_1(P,T,X,Y).
+
+jouer_mode_1(P,T,X,Y):-
+	position_libre(P,Y),
+	coup_sans_remplacement(P,[],T,[X,Y]).
+	%appliquer_coup(P,P2,[X,Y]),
+	%jouer_mode_1(P2).
+	%!.
+	
+jouer_mode_1(P,T,X,Y):-
+	position_occupee(P,Y),
+	write('Case de remplacement ? '),
+	read(R),
+	coup_avec_remplacement(P,[],T,[X,Y,R]).
+	%appliquer_coup(P,P2,[X,Y,R]),
+	%jouer_mode_1(P2).
+	%!.
