@@ -67,9 +67,9 @@ position_occupee(Plateau,Position):-position_sur_plateau(Position),pions_triple(
 %position_libre(+Plateau,?Position): Défini si une position n'est pas occupé par un pion.
 position_libre(Plateau,Position):-
 	position_sur_plateau(Position),
-	pions_simple(Plateau,Pions_simple),\\+(member(Position,Pions_simple)),
-	pions_double(Plateau,Pions_double),\\+(member(Position,Pions_double)),
-	pions_triple(Plateau,Pions_triple),\\+(member(Position,Pions_triple)).
+	pions_simple(Plateau,Pions_simple),\+(member(Position,Pions_simple)),
+	pions_double(Plateau,Pions_double),\+(member(Position,Pions_double)),
+	pions_triple(Plateau,Pions_triple),\+(member(Position,Pions_triple)).
 
 
 %deplacement_xxxx([?DX,?DY],[?AX,?AY]): Défini si deux positions sont distante d'un déplacement vers la droite/gauche/haut/bas.
@@ -89,15 +89,15 @@ deplacement_sur_plateau([DX,DY],[AX,AY]):-deplacement_bas([DX,DY],[AX,AY]).
 %(c'est a dire en évitant de passer deux fois par le même lien).
 deplacement_possible_vers_libre(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
-	\\+(position_occupee(Plateau,[AX,AY])),
-	\\+(member([[DX,DY],[AX,AY]],Trajet)),\\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
+	\+(position_occupee(Plateau,[AX,AY])),
+	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
 %deplacement_possible_vers_occupee(+Plateau,+Trajet,[-DX,-DY],[+AX,+AY]): 
 %Idem que deplacement_possible_vers_libre sauf que seul les déplacements vers des cases occupées sont autorisés.
 deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	deplacement_sur_plateau([DX,DY],[AX,AY]),
 	position_occupee(Plateau,[AX,AY]),
-	\\+(member([[DX,DY],[AX,AY]],Trajet)),\\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
+	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
 %coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
 %Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
