@@ -35,25 +35,25 @@ affiche_elem(_,_):-write(' . ').
 
 %affiche_ligne(+Plateau,+Ligne)
 affiche_ligne(Plateau,Ligne):-
-	write('\\t|'),
+	write('\t|'),
 	affiche_elem(Plateau,[1,Ligne]),
 	affiche_elem(Plateau,[2,Ligne]),
 	affiche_elem(Plateau,[3,Ligne]),
 	affiche_elem(Plateau,[4,Ligne]),
 	affiche_elem(Plateau,[5,Ligne]),
 	affiche_elem(Plateau,[6,Ligne]),
-	write('|\\n').
+	write('|\n').
 
 %affiche_plateau(+Plateau)
 affiche_plateau(Plateau):-
-	write('\\t+------------------+\\n'),
+	write('\t+------------------+\n'),
 	affiche_ligne(Plateau,6),
 	affiche_ligne(Plateau,5),
 	affiche_ligne(Plateau,4),
 	affiche_ligne(Plateau,3),
 	affiche_ligne(Plateau,2),
 	affiche_ligne(Plateau,1),
-	write('\\t+------------------+\\n').
+	write('\t+------------------+\n').
 
 
 %position_sur_plateau([?X,?Y]): Défini si une position est sur le plateau ou non.
