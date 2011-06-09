@@ -192,8 +192,8 @@ coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacem
 
 
 %%%
-
-appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):- 
+%appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):- 
 	pions_simple(PlateauIN,ListPionIN),
 	member(Depart,ListPionIN),
 	delete(ListPionIN,Depart,ListPionTemp),
@@ -203,7 +203,7 @@ appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
 	joueur(PlateauIN,Joueur),
 	PlateauOUT=[ListPionOUT,Pions2,Pions3,Joueur].
 	
-appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_double(PlateauIN,ListPionIN),
 	member(Depart,ListPionIN),
 	delete(ListPionIN,Depart,ListPionTemp),
@@ -213,7 +213,7 @@ appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
 	joueur(PlateauIN,Joueur),
 	PlateauOUT=[Pions1,ListPionOUT,Pions3,Joueur].
 
-appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_triple(PlateauIN,ListPionIN),
 	member(Depart,ListPionIN),
 	delete(ListPionIN,Depart,ListPionTemp),
