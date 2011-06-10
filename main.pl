@@ -4,7 +4,7 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ
-plateau_depart([[[4,1],[6,1],[1,6],[6,6]],[[3,1],[5,1],[2,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
+plateau_depart([[[2,5],[2,6],[6,6]],[[1,6],[5,6]],[[3,6],[4,6]],s]).
 
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
@@ -99,10 +99,51 @@ deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	position_occupee(Plateau,[AX,AY]),
 	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
+
+pion_sur_derniere_ligne(Plateau,[_,Y]):-
+	joueur(Plateau,s),
+	Y=6.
+
+pion_sur_derniere_ligne(Plateau,[_,Y]):-
+	joueur(Plateau,n),
+	Y=1.
+
+pion_sur_premiere_ligne(Plateau,[_,Y]):-
+	joueur(Plateau,s),
+	Y=5.
+
+pion_sur_premiere_ligne(Plateau,[_,Y]):-
+	joueur(Plateau,n),
+	Y=6.
+
 %coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
 %Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
 coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_simple(Plateau,Pions_simple),member(Depart,Pions_simple),	%Le pion de départ est un pion simple
+	pion_sur_derniere_ligne(Plateau,Depart),
+	Arrive=v,
+	TrajetApres=[[Depart,Arrive]|TrajetAvant].
+
+coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
+	pions_double(Plateau,Pions_double),member(Depart,Pions_double),	%Le pion de départ est un pion double
+	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Intermediaire),TrajetInter=[[Depart,Intermediaire]|TrajetAvant],
+	pion_sur_derniere_ligne(Plateau,Intermediaire),
+	Arrive=v,
+	TrajetApres=[[Depart,Arrive]|TrajetInter].
+
+coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
+	pions_triple(Plateau,Pions_triple),member(Depart,Pions_triple),	%Le pion de départ est un pion triple
+	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Intermediaire1),TrajetInter1=[[Depart,Intermediaire1]|TrajetAvant],
+	deplacement_possible_vers_libre(Plateau,TrajetInter1,Intermediaire1,Intermediaire2),TrajetInter2=[[Intermediaire1,Intermediaire2]|TrajetInter1],
+	pion_sur_derniere_ligne(Plateau,Intermediaire2),
+	Arrive=v,
+	TrajetApres=[[Depart,Arrive]|TrajetInter2].
+
+
+%coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
+%Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
+coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
+	pions_simple(Plateau,Pions_simple),member(Depart,Pions_simple),	%Le pion de départ est un pion simple	
 	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Arrive),TrajetApres=[[Depart,Arrive]|TrajetAvant].
 
 coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
@@ -172,13 +213,16 @@ position_apres_remplacement_valide(Plateau,[X,Y]):-
 
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
 %Defini un coup entier sans remplacement
-coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
 	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
 
-coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
-	coup_sans_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
-	
+	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
+
+coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+	pion_sur_premiere_ligne(Plateau,Depart),
+	coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]).
 
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
 %Defini un coup entier avec remplacement
