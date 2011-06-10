@@ -313,6 +313,30 @@ coup_imparable1(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauOUT,Coup),
 	\+coup(PlateauOUT,_,[_,v]).
+
+coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup):-
+	coup(Plateau,Trajet,Coup),
+	appliquer_coup(Plateau,PlateauTMP,Coup),
+	\+coup(PlateauTMP,_,[_,v]),	%L'ennemie ne gagne pas au prochain coup
+	coup(PlateauTMP,_,CoupEnnemi),
+	appliquer_coup(PlateauTMP,PlateauOUT,CoupEnnemi),
+	coup(PlateauOUT,_,[_,v]).	%On peut gagner au second tour
+
+
+tout_les_coups_seront_battus(_,[]).
+tout_les_coups_seront_battus(Plateau,[Coup|ListCoup]):-
+	appliquer_coup(Plateau,P2,Coup),
+	coup(P2,_,[_,v]),
+	tout_les_coups_seront_battus(Plateau,ListCoup).
+
+coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
+	coup(Plateau,Trajet,Coup),
+	appliquer_coup(Plateau,PlateauTMP,Coup),
+	\+coup(PlateauTMP,_,[_,v]),	%L'ennemie ne gagne pas au prochain coup
+	setof(CoupEnnemie,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
+	tout_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
+
+
 %%% UI
   
 gyges(yes):-
