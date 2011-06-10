@@ -4,7 +4,12 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ
-plateau_depart([[[1,2],[2,5],[2,4],[6,5]],[[2,2]],[],s]).
+plateau_depart([
+		[[3,4]],
+		[[3,5]],
+		[[3,1]],
+		s
+	      ]).
 
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
@@ -26,6 +31,13 @@ pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
 pions_double(Plateau,Pions):-nth(2,Plateau,Pions).
 pions_triple(Plateau,Pions):-nth(3,Plateau,Pions).
 joueur(Plateau,Joueur):-nth(4,Plateau,Joueur).
+
+joueurInverse(Plateau,n):-
+	joueur(Plateau,s).
+
+joueurInverse(Plateau,s):-
+	joueur(Plateau,n).
+
 
 %affiche_elem(+Plateau,+Position)
 affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!.
@@ -236,9 +248,9 @@ coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
 	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
 
-coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
 	pion_sur_depart(Plateau,Depart),
-	coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]).
+	coup_sans_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive]).
 
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
 %Defini un coup entier avec remplacement
@@ -250,9 +262,15 @@ coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
 	coup_avec_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
 
-coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres,[Depart,Arrive,Remplacement]):-
+coup_avec_remplacement(Plateau,Trajet,[Depart,Arrive,Remplacement]):-
 	pion_sur_depart(Plateau,Depart),
-	coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]).
+	coup_avec_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive,Remplacement]).
+
+coup(Plateau,Trajet,Coup):-
+	coup_sans_remplacement(Plateau,Trajet,Coup).
+
+coup(Plateau,Trajet,Coup):-
+	coup_avec_remplacement(Plateau,Trajet,Coup).
 
 %%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
@@ -273,7 +291,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	append(ListPionTemp,[Arrive],ListPionOUT),
 	pions_simple(PlateauIN,Pions1),
 	pions_triple(PlateauIN,Pions3),
-	joueur(PlateauIN,Joueur),
+	joueurInverse(PlateauIN,Joueur),
 	PlateauOUT=[Pions1,ListPionOUT,Pions3,Joueur].
 
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
@@ -283,7 +301,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	append(ListPionTemp,[Arrive],ListPionOUT),
 	pions_simple(PlateauIN,Pions1),
 	pions_double(PlateauIN,Pions2),
-	joueur(PlateauIN,Joueur),
+	joueurInverse(PlateauIN,Joueur),
 	PlateauOUT=[Pions1,Pions2,ListPionOUT,Joueur].
 
 
@@ -291,10 +309,10 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
 	appliquer_coup(PlateauIN,PlateauTMP,[Arrive,Remplacement]),
 	appliquer_coup(PlateauTMP,PlateauOUT,[Depart,Arrive]).
 
-
-%appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive,Remplacement]):-
-
-
+coup_imparable1(Plateau,Trajet,Coup):-
+	coup(Plateau,Trajet,Coup),
+	appliquer_coup(Plateau,PlateauOUT,Coup),
+	\+coup(PlateauOUT,_,[_,v]).
 %%% UI
   
 gyges(yes):-
