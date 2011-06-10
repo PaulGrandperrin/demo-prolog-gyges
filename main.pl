@@ -4,7 +4,7 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ
-plateau_depart([[[2,5],[2,6],[6,6]],[[1,6],[5,6]],[[3,6],[4,6]],s]).
+plateau_depart([[[1,2],[2,5],[2,4],[6,5]],[[2,2]],[],s]).
 
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
@@ -99,21 +99,56 @@ deplacement_possible_vers_occupee(Plateau,Trajet,[DX,DY],[AX,AY]):-
 	position_occupee(Plateau,[AX,AY]),
 	\+(member([[DX,DY],[AX,AY]],Trajet)),\+(member([[AX,AY],[DX,DY]],Trajet)).	%Passe pas par la meme ligne
 
+%%%%
 
-pion_sur_derniere_ligne(Plateau,[_,Y]):-
+%ligne_contient_pions(+Plateau,?Ligne)
+%Defini si une ligne contient est libre ou non
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[1,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[2,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[3,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[4,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[5,Ligne]).
+ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[6,Ligne]).
+
+%lignes_dessus_contiennent_pions(+Plateau,?Ligne)
+%Defini si les lignes au dessus de Ligne (et contenant Ligne) sont occupee
+lignes_dessous_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
+lignes_dessous_contiennent_pions(Plateau,Ligne):-plusun(Ligne2,Ligne),lignes_dessous_contiennent_pions(Plateau,Ligne2).
+
+%lignes_dessous_contiennent_pions(+Plateau,?Ligne)
+%Idem que lignes_dessus_contiennent_pions mais pour les lignes en dessous
+lignes_dessus_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
+lignes_dessus_contiennent_pions(Plateau,Ligne):-plusun(Ligne,Ligne2),lignes_dessus_contiennent_pions(Plateau,Ligne2).
+
+%%%%%%%%
+
+pion_sur_depart(Plateau,[X,1]):-
 	joueur(Plateau,s),
-	Y=6.
+	position_occupee(Plateau,[X,1]).
 
-pion_sur_derniere_ligne(Plateau,[_,Y]):-
+pion_sur_depart(Plateau,[X,Y]):-
+	joueur(Plateau,s),
+	position_occupee(Plateau,[X,Y]),
+	plusun(YmoinsUn,Y),
+	\+lignes_dessous_contiennent_pions(Plateau,YmoinsUn).
+
+pion_sur_depart(Plateau,[X,6]):-
+	joueur(Plateau,n),
+	position_occupee(Plateau,[X,6]).
+
+pion_sur_depart(Plateau,[X,Y]):-
+	joueur(Plateau,n),
+	position_occupee(Plateau,[X,Y]),
+	plusun(Y,YplusUn),
+	\+lignes_dessus_contiennent_pions(Plateau,YplusUn).
+
+
+pion_sur_derniere_ligne(Plateau,[_,Y]):
 	joueur(Plateau,n),
 	Y=1.
 
-pion_sur_premiere_ligne(Plateau,[_,Y]):-
+pion_sur_derniere_ligne(Plateau,[_,Y]):-
 	joueur(Plateau,s),
-	Y=5.
-
-pion_sur_premiere_ligne(Plateau,[_,Y]):-
-	joueur(Plateau,n),
 	Y=6.
 
 %coup_simple_vers_libre(+Plateau,+TrajetAvant,?TrajetApres,?Depart,?Arrive)
@@ -178,25 +213,6 @@ coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 
 %%% Ces predicats servent à définir si une position de remplacement est valide pour un pion
 
-%ligne_contient_pions(+Plateau,?Ligne)
-%Defini si une ligne contient est libre ou non
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[1,Ligne]).
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[2,Ligne]).
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[3,Ligne]).
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[4,Ligne]).
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[5,Ligne]).
-ligne_contient_pions(Plateau,Ligne):-position_occupee(Plateau,[6,Ligne]).
-
-%lignes_dessus_contiennent_pions(+Plateau,?Ligne)
-%Defini si les lignes au dessus de Ligne (et contenant Ligne) sont occupee
-lignes_dessus_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
-lignes_dessus_contiennent_pions(Plateau,Ligne):-plusun(Ligne2,Ligne),lignes_dessus_contiennent_pions(Plateau,Ligne2).
-
-%lignes_dessous_contiennent_pions(+Plateau,?Ligne)
-%Idem que lignes_dessus_contiennent_pions mais pour les lignes en dessous
-lignes_dessous_contiennent_pions(Plateau,Ligne):-ligne_contient_pions(Plateau,Ligne).
-lignes_dessous_contiennent_pions(Plateau,Ligne):-plusun(Ligne,Ligne2),lignes_dessus_contiennent_pions(Plateau,Ligne2).
-
 %position_apres_remplacement_valide(+Plateau,[?X,?Y])
 %Defini si une position après remplacement est valide en fonction du plateau et du joueur qui joue le coup
 position_apres_remplacement_valide(Plateau,[X,Y]):-
@@ -221,19 +237,22 @@ coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]
 	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
 
 coup_sans_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
-	pion_sur_premiere_ligne(Plateau,Depart),
+	pion_sur_depart(Plateau,Depart),
 	coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]).
 
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
 %Defini un coup entier avec remplacement
-coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
+coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
 	position_apres_remplacement_valide(Plateau,Remplacement).
 
-coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
+coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
-	coup_avec_remplacement(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
+	coup_avec_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
 
+coup_avec_remplacement(Plateau,TrajetAvant,TrajetApres,[Depart,Arrive,Remplacement]):-
+	pion_sur_depart(Plateau,Depart),
+	coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]).
 
 %%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
@@ -267,6 +286,10 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	joueur(PlateauIN,Joueur),
 	PlateauOUT=[Pions1,Pions2,ListPionOUT,Joueur].
 
+
+appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
+	appliquer_coup(PlateauIN,PlateauTMP,[Arrive,Remplacement]),
+	appliquer_coup(PlateauTMP,PlateauOUT,[Depart,Arrive]).
 
 
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive,Remplacement]):-
