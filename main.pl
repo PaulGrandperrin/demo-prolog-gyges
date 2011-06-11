@@ -25,11 +25,11 @@ plusun(5,6).
 pions_simple(Plateau,Pions):-nth(1,Plateau,Pions).
 pions_double(Plateau,Pions):-nth(2,Plateau,Pions).
 pions_triple(Plateau,Pions):-nth(3,Plateau,Pions).
+
 joueur(Plateau,Joueur):-nth(4,Plateau,Joueur).
 
 joueurInverse(Plateau,n):-
 	joueur(Plateau,s).
-
 joueurInverse(Plateau,s):-
 	joueur(Plateau,n).
 
@@ -150,7 +150,7 @@ pion_sur_depart(Plateau,[X,Y]):-
 	\+lignes_dessus_contiennent_pions(Plateau,YplusUn).
 
 
-pion_sur_derniere_ligne(Plateau,[_,Y]):
+pion_sur_derniere_ligne(Plateau,[_,Y]):-
 	joueur(Plateau,n),
 	Y=1.
 
@@ -317,18 +317,30 @@ coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(PlateauOUT,_,[_,v]).	%On peut gagner au second tour
 
 
-tout_les_coups_seront_battus(_,[]).
-tout_les_coups_seront_battus(Plateau,[Coup|ListCoup]):-
+tous_les_coups_seront_battus(_,[]).
+tous_les_coups_seront_battus(Plateau,[Coup|ListCoup]):-
 	appliquer_coup(Plateau,P2,Coup),
 	coup(P2,_,[_,v]),
-	tout_les_coups_seront_battus(Plateau,ListCoup).
+	tous_les_coups_seront_battus(Plateau,ListCoup).
 
 coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauTMP,Coup),
 	\+coup(PlateauTMP,_,[_,v]),	%L'ennemie ne gagne pas au prochain coup
-	setof(CoupEnnemie,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
-	tout_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
+	setof(CoupEnnemi,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
+	tous_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
+	
+coup_machine(Plateau,Trajet,[Depart,v]):-
+   coup(Plateau,Trajet,[Depart,v]),!.
+
+coup_machine(Plateau,Trajet,Coup):-
+   coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+
+coup_machine(Plateau,Trajet,Coup):-
+   coup_imparable1(Plateau,Trajet,Coup),!.
+
+coup_machine(Plateau,Trajet,Coup):-
+   coup(Plateau,Trajet,Coup),!.
 
 
 %%% UI
@@ -363,35 +375,58 @@ menu:-
 	%jouer_mode(Mode).
 	jouer_mode(1).
 	
-saisie_deplacement(P,X,Y):-
-	write('Case de départ ? '),
-	read(X),
-	write('Case d’arrivée ? '),
-	read(Y).
-saisie_remplacement(P,R):-
-	write('Case de remplacement ? '),
-	read(R).
+convertir_nombre_en_chiffres(AA,A1,A2):-
+	A1 is AA // 10,
+	A2 is AA mod 10.
+convertir_notation([AA*BB],[[A1,A2],[B1,B2]]):-
+	convertir_nombre_en_chiffres(AA,A1,A2),
+	convertir_nombre_en_chiffres(BB,B1,B2).	
+convertir_notation([AA*BB=CC],[[A1,A2],[B1,B2],[C1,C2]]):-
+	convertir_nombre_en_chiffres(AA,A1,A2),
+	convertir_nombre_en_chiffres(BB,B1,B2),
+	convertir_nombre_en_chiffres(CC,C1,C2).
+
+saisie_humain(C):-
+	write('Coup (format [AA*BB=CC]) ? '),
+	read(Cext),
+	convertir_notation(Cext,C).
 	
-coup_humain(P,P2,T,Y):-
+calculer_coup(humain,P,T,C):-
 	affiche_plateau(P),
-	saisie_deplacement(P,X,Y),
-	test_remplacement(P,P2,T,X,Y).	
+	saisie_humain(C),
+	coup(P,T,C).
 	
-test_remplacement(P,P2,T,X,Y):-
-	position_libre(P,Y),
-	coup_sans_remplacement(P,T,[X,Y]),
-	appliquer_coup(P,P2,[X,Y]).
-test_remplacement(P,P2,T,X,Y):-
-	position_occupee(P,Y),
-	saisie_remplacement(P,R),
-	coup_avec_remplacement(P,T,[X,Y,R]),
-	appliquer_coup(P,P2,[X,Y,R]).
+calculer_coup(machine,P,T,C):-
+	coup_machine(P,T,C).
 
 jouer_mode(1):-
+	asserta(type_joueur(1,humain)),
+	asserta(type_joueur(2,machine)),
+	jouer.
+jouer_mode(2):-
+	asserta(type_joueur(1,humain)),
+	asserta(type_joueur(2,humain)),
+	jouer.
+jouer_mode(3):-
+	asserta(type_joueur(1,machine)),
+	asserta(type_joueur(1,machine)),
+	jouer.	
+
+jouer:-
 	plateau_depart(P),
+	asserta(plateau(P)),
+	asserta(tour(1)),
 	repeat, (
-		coup_humain(P,P2,T,Y),
-		affiche_plateau(P2),
-		write('test')
+		plateau(P1),
+		tour(I),
+		type_joueur(I,J),
+		calculer_coup(J,P1,_T,C),
+		appliquer_coup(P1,P2,C),
+		Y is nth(2,C),
+		retract(plateau(P1)),
+		asserta(plateau(P2)),
+		retract(tour(I)),
+		I2 is (I + 1) mod 2,
+		asserta(tour(I2))
 	),
 	Y = v.
