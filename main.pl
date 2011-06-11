@@ -4,8 +4,13 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ [[simples], [doubles], [triples], joueur_courant]
-plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
-
+%plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
+plateau_depart([
+                  [[3,4],[6,6]],
+                  [[3,5]],
+                  [[6,1]],
+                  s
+                ]).
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
@@ -275,7 +280,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	append(ListPionTemp,[Arrive],ListPionOUT),
 	pions_double(PlateauIN,Pions2),
 	pions_triple(PlateauIN,Pions3),
-	joueur(PlateauIN,Joueur),
+	joueurInverse(PlateauIN,Joueur),
 	PlateauOUT=[ListPionOUT,Pions2,Pions3,Joueur].
 	
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
@@ -337,23 +342,13 @@ coup_machine(Plateau,Trajet,Coup):-
    coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
+   coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+
+coup_machine(Plateau,Trajet,Coup):-
    coup_imparable1(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
    coup(Plateau,Trajet,Coup),!.
-
-coup_ia(Plateau,Trajet,[Depart,v]):-
-	coup(Plateau,Trajet,[Depart,v]),!.
-
-coup_ia(Plateau,Trajet,Coup):-
-	coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
-
-coup_ia(Plateau,Trajet,Coup):-
-	coup_imparable1(Plateau,Trajet,Coup),!.
-
-coup_ia(Plateau,Trajet,Coup):-
-	coup(Plateau,Trajet,Coup),!.
-
 
 
 %%% UI
