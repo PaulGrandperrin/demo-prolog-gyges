@@ -330,6 +330,19 @@ coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	setof(CoupEnnemie,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
 	tout_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
 
+coup_ia(Plateau,Trajet,[Depart,v]):-
+	coup(Plateau,Trajet,[Depart,v]),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup_imparable1(Plateau,Trajet,Coup),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup(Plateau,Trajet,Coup),!.
+
+
 
 %%% UI
   
