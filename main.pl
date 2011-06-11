@@ -316,7 +316,7 @@ coup_imparable1(Plateau,Trajet,Coup):-
 coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauTMP,Coup),
-	\+coup(PlateauTMP,_,[_,v]),	%L'ennemie ne gagne pas au prochain coup
+	\+coup(PlateauTMP,_,[_,v]),	%L'ennemi ne gagne pas au prochain coup
 	coup(PlateauTMP,_,CoupEnnemi),
 	appliquer_coup(PlateauTMP,PlateauOUT,CoupEnnemi),
 	coup(PlateauOUT,_,[_,v]).	%On peut gagner au second tour
@@ -331,7 +331,7 @@ tous_les_coups_seront_battus(Plateau,[Coup|ListCoup]):-
 coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauTMP,Coup),
-	\+coup(PlateauTMP,_,[_,v]),	%L'ennemie ne gagne pas au prochain coup
+	\+coup(PlateauTMP,_,[_,v]),	%L'ennemi ne gagne pas au prochain coup
 	setof(CoupEnnemi,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
 	tous_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
 	
@@ -339,7 +339,7 @@ coup_machine(Plateau,Trajet,[Depart,v]):-
    coup(Plateau,Trajet,[Depart,v]),!.
 
 coup_machine(Plateau,Trajet,Coup):-
-   coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+   coup_va_gagner_en_2_coups(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
    coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
@@ -382,9 +382,9 @@ menu:-
 	write('3. Machine vs Machine'), nl,
 	nl,
 	write('Mode de jeu ? '),
-	%read(Mode), nl,
-	%jouer_mode(Mode).
-	jouer_mode(1).
+	read(Mode), nl,
+	jouer_mode(Mode).
+	%jouer_mode(1).
 
 parser_nombre(v,v).
 parser_nombre(AA,[A1,A2]):-
@@ -423,7 +423,7 @@ jouer_mode(2):-
 	jouer.
 jouer_mode(3):-
 	asserta(type_joueur(1,machine)),
-	asserta(type_joueur(1,machine)),
+	asserta(type_joueur(2,machine)),
 	jouer.	
 
 jouer:-
