@@ -3,13 +3,8 @@
 %Coup: [depart,arrivé] ou [depart,arrivé,nouvelleCaseDuPionRemplacé]
 %Lien: [caseA,caseB]
 
-%plateau_depart(-Plateau): Défini le plateau de départ
-plateau_depart([
-		[[3,4]],
-		[[3,5]],
-		[[3,1]],
-		s
-	      ]).
+%plateau_depart(-Plateau): Défini le plateau de départ [[simples], [doubles], [triples], joueur_courant]
+plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
 
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
@@ -247,7 +242,6 @@ coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]
 coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
 	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
-
 coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
 	pion_sur_depart(Plateau,Depart),
 	coup_sans_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive]).
@@ -339,58 +333,65 @@ coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 
 %%% UI
   
-gyges(yes):-
-	%logo(yes),
-	menu(yes).
+gyges:-
+	%logo,
+	menu.
 
 % http://www.network-science.de/ascii/
-logo(yes):-
-	write('     ___                       ___           ___           ___     \n'),
-	write('    /\\__\\                     /\\__\\         /\\__\\         /\\__\\    \n'),
-	write('   /:/ _/_         ___       /:/ _/_       /:/ _/_       /:/ _/_   \n'),
-	write('  /:/ /\\  \\       /|  |     /:/ /\\  \\     /:/ /\\__\\     /:/ /\\  \\  \n'),
-	write(' /:/ /::\\  \\     |:|  |    /:/ /::\\  \\   /:/ /:/ _/_   /:/ /::\\  \\ \n'),
-	write('/:/__\\/\\:\\__\\    |:|  |   /:/__\\/\\:\\__\\ /:/_/:/ /\\__\\ /:/_/:/\\:\\__\\\n'),
-	write('\\:\\  \\ /:/  /  __|:|__|   \\:\\  \\ /:/  / \\:\\/:/ /:/  / \\:\\/:/ /:/  /\n'),
-	write(' \\:\\  /:/  /  /::::\\  \\    \\:\\  /:/  /   \\::/_/:/  /   \\::/ /:/  / \n'),
-	write('  \\:\\/:/  /   ~~~~\\:\\  \\    \\:\\/:/  /     \\:\\/:/  /     \\/_/:/  /  \n'),
-	write('   \\::/  /         \\:\\__\\    \\::/  /       \\::/  /        /:/  /   \n'),
-	write('    \\/__/           \\/__/     \\/__/         \\/__/         \\/__/    \n').
+logo:-
+	nl,
+	write('     ___                       ___           ___           ___     '), nl,
+	write('    /\\__\\                     /\\__\\         /\\__\\         /\\__\\    '), nl,
+	write('   /:/ _/_         ___       /:/ _/_       /:/ _/_       /:/ _/_   '), nl,
+	write('  /:/ /\\  \\       /|  |     /:/ /\\  \\     /:/ /\\__\\     /:/ /\\  \\  '), nl,
+	write(' /:/ /::\\  \\     |:|  |    /:/ /::\\  \\   /:/ /:/ _/_   /:/ /::\\  \\ '), nl,
+	write('/:/__\\/\\:\\__\\    |:|  |   /:/__\\/\\:\\__\\ /:/_/:/ /\\__\\ /:/_/:/\\:\\__\\'), nl,
+	write('\\:\\  \\ /:/  /  __|:|__|   \\:\\  \\ /:/  / \\:\\/:/ /:/  / \\:\\/:/ /:/  /'), nl,
+	write(' \\:\\  /:/  /  /::::\\  \\    \\:\\  /:/  /   \\::/_/:/  /   \\::/ /:/  / '), nl,
+	write('  \\:\\/:/  /   ~~~~\\:\\  \\    \\:\\/:/  /     \\:\\/:/  /     \\/_/:/  /  '), nl,
+	write('   \\::/  /         \\:\\__\\    \\::/  /       \\::/  /        /:/  /   '), nl,
+	write('    \\/__/           \\/__/     \\/__/         \\/__/         \\/__/    '), nl.
 
-menu(yes):-
-	write('\n1. Humain vs Machine\n'),
-	write('2. Humain vs Humain\n'),
-	write('3. Machine vs Machine\n\n'),
+menu:-
+	nl,
+	write('1. Humain vs Machine'), nl,
+	write('2. Humain vs Humain'), nl,
+	write('3. Machine vs Machine'), nl,
+	nl,
 	write('Mode de jeu ? '),
-	read(Mode),
-	jouer_mode(Mode).
+	%read(Mode), nl,
+	%jouer_mode(Mode).
+	jouer_mode(1).
 	
-jouer_mode(1):-
-	jouer_mode_1(P).
-jouer_mode(2).
-jouer_mode(3).
-
-jouer_mode_1(P):-
-	plateau_depart(P),
-	affiche_plateau(P),
+saisie_deplacement(P,X,Y):-
 	write('Case de départ ? '),
 	read(X),
 	write('Case d’arrivée ? '),
-	read(Y),
-	jouer_mode_1(P,T,X,Y).
-
-jouer_mode_1(P,T,X,Y):-
-	position_libre(P,Y),
-	coup_sans_remplacement(P,[],T,[X,Y]).
-	%appliquer_coup(P,P2,[X,Y]),
-	%jouer_mode_1(P2).
-	%!.
-	
-jouer_mode_1(P,T,X,Y):-
-	position_occupee(P,Y),
+	read(Y).
+saisie_remplacement(P,R):-
 	write('Case de remplacement ? '),
-	read(R),
-	coup_avec_remplacement(P,[],T,[X,Y,R]).
-	%appliquer_coup(P,P2,[X,Y,R]),
-	%jouer_mode_1(P2).
-	%!.
+	read(R).
+	
+coup_humain(P,P2,T,Y):-
+	affiche_plateau(P),
+	saisie_deplacement(P,X,Y),
+	test_remplacement(P,P2,T,X,Y).	
+	
+test_remplacement(P,P2,T,X,Y):-
+	position_libre(P,Y),
+	coup_sans_remplacement(P,T,[X,Y]),
+	appliquer_coup(P,P2,[X,Y]).
+test_remplacement(P,P2,T,X,Y):-
+	position_occupee(P,Y),
+	saisie_remplacement(P,R),
+	coup_avec_remplacement(P,T,[X,Y,R]),
+	appliquer_coup(P,P2,[X,Y,R]).
+
+jouer_mode(1):-
+	plateau_depart(P),
+	repeat, (
+		coup_humain(P,P2,T,Y),
+		affiche_plateau(P2),
+		write('test')
+	),
+	Y = v.
