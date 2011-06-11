@@ -342,6 +342,19 @@ coup_machine(Plateau,Trajet,Coup):-
 coup_machine(Plateau,Trajet,Coup):-
    coup(Plateau,Trajet,Coup),!.
 
+coup_ia(Plateau,Trajet,[Depart,v]):-
+	coup(Plateau,Trajet,[Depart,v]),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup_imparable1(Plateau,Trajet,Coup),!.
+
+coup_ia(Plateau,Trajet,Coup):-
+	coup(Plateau,Trajet,Coup),!.
+
+
 
 %%% UI
   
