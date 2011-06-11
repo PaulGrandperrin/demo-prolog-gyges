@@ -354,6 +354,9 @@ coup_machine(Plateau,Trajet,Coup):-
 %%% UI
   
 gyges:-
+	abolish(plateau/1),
+	abolish(tour/1),
+	abolish(type_joueur/2),
 	%logo,
 	menu.
 
@@ -445,5 +448,4 @@ jouer:-
 	),
 	Y = v,
 	write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
-	
 	!.
