@@ -382,30 +382,33 @@ menu:-
 	%read(Mode), nl,
 	%jouer_mode(Mode).
 	jouer_mode(1).
-	
-convertir_nombre_en_chiffres(AA,A1,A2):-
+
+parser_nombre(v,v).
+parser_nombre(AA,[A1,A2]):-
 	A1 is AA // 10,
 	A2 is AA mod 10.
-convertir_notation([AA*BB],[[A1,A2],[B1,B2]]):-
-	convertir_nombre_en_chiffres(AA,A1,A2),
-	convertir_nombre_en_chiffres(BB,B1,B2).	
-convertir_notation([AA*BB=CC],[[A1,A2],[B1,B2],[C1,C2]]):-
-	convertir_nombre_en_chiffres(AA,A1,A2),
-	convertir_nombre_en_chiffres(BB,B1,B2),
-	convertir_nombre_en_chiffres(CC,C1,C2).
+	
+convertir_notation(AA*BB,[AA2,BB2]):-
+	parser_nombre(AA,AA2),
+	parser_nombre(BB,BB2).	
+convertir_notation(AA*BB=CC,[AA2,BB2,CC2]):-
+	parser_nombre(AA,AA2),
+	parser_nombre(BB,BB2),
+	parser_nombre(CC,CC2).
 
 saisie_humain(C):-
-	write('Coup (format [AA*BB=CC]) ? '),
+	write('Coup (AA*BB ou AA*BB=CC) ? '),
 	read(Cext),
 	convertir_notation(Cext,C).
 	
 calculer_coup(humain,P,T,C):-
-	affiche_plateau(P),
 	saisie_humain(C),
 	coup(P,T,C).
 	
 calculer_coup(machine,P,T,C):-
+	write('La machine joue.'), nl,
 	coup_machine(P,T,C).
+	%sleep(1).
 
 jouer_mode(1):-
 	asserta(type_joueur(1,humain)),
@@ -428,13 +431,19 @@ jouer:-
 		plateau(P1),
 		tour(I),
 		type_joueur(I,J),
+		nl,
+		affiche_plateau(P1),
+		write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
 		calculer_coup(J,P1,_T,C),
 		appliquer_coup(P1,P2,C),
-		Y is nth(2,C),
+		nth(2,C,Y),
 		retract(plateau(P1)),
 		asserta(plateau(P2)),
 		retract(tour(I)),
-		I2 is (I + 1) mod 2,
+		I2 is (I mod 2) + 1,
 		asserta(tour(I2))
 	),
-	Y = v.
+	Y = v,
+	write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
+	
+	!.
