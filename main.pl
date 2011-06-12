@@ -4,13 +4,8 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ [[simples], [doubles], [triples], joueur_courant]
-%plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,3],[3,6],[4,6]],s]).
-plateau_depart([
-                  [[3,4],[6,6]],
-                  [[3,5]],
-                  [[6,1]],
-                  s
-                ]).
+plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
+%plateau_depart([[[3,4],[6,6]],[[3,5]],[[6,1]],s]).
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
@@ -38,16 +33,47 @@ joueurInverse(Plateau,n):-
 joueurInverse(Plateau,s):-
 	joueur(Plateau,n).
 
+% Damier alternative	
+%%affiche_elem(+Plateau,+Position)
+%affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('(1)'),!.
+%affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('(2)'),!.
+%affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('(3)'),!.
+%affiche_elem(_,_):-write('( )').
+%
+%%affiche_ligne(+Plateau,+Ligne)
+%affiche_ligne(Plateau,Ligne):-
+%	affiche_elem(Plateau,[1,Ligne]), write('—'),
+%	affiche_elem(Plateau,[2,Ligne]), write('—'),
+%	affiche_elem(Plateau,[3,Ligne]), write('—'),
+%	affiche_elem(Plateau,[4,Ligne]), write('—'),
+%	affiche_elem(Plateau,[5,Ligne]), write('—'),
+%	affiche_elem(Plateau,[6,Ligne]), nl.
+%
+%%affiche_plateau(+Plateau)
+%affiche_plateau(Plateau):-
+%	write('6 '), affiche_ligne(Plateau,6),
+%	write('   |   |   |   |   |   | '), nl,
+%	write('5 '), affiche_ligne(Plateau,5),
+%	write('   |   |   |   |   |   | '), nl,
+%	write('4 '), affiche_ligne(Plateau,4),
+%	write('   |   |   |   |   |   | '), nl,
+%	write('3 '), affiche_ligne(Plateau,3),
+%	write('   |   |   |   |   |   | '), nl,
+%	write('2 '), affiche_ligne(Plateau,2),
+%	write('   |   |   |   |   |   | '), nl,
+%	write('1 '), affiche_ligne(Plateau,1),
+%	write('   1   2   3   4   5   6  \n').
+
 
 %affiche_elem(+Plateau,+Position)
-affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write(' 1 '),!.
-affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write(' 2 '),!.
-affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write(' 3 '),!.
-affiche_elem(_,_):-write(' . ').
+affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
+affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
+affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('3 '),!.
+affiche_elem(_,_):-write('· ').
 
 %affiche_ligne(+Plateau,+Ligne)
 affiche_ligne(Plateau,Ligne):-
-	write('\t|'),
+	write('| '),
 	affiche_elem(Plateau,[1,Ligne]),
 	affiche_elem(Plateau,[2,Ligne]),
 	affiche_elem(Plateau,[3,Ligne]),
@@ -58,14 +84,15 @@ affiche_ligne(Plateau,Ligne):-
 
 %affiche_plateau(+Plateau)
 affiche_plateau(Plateau):-
-	write('\t+------------------+\n'),
-	affiche_ligne(Plateau,6),
-	affiche_ligne(Plateau,5),
-	affiche_ligne(Plateau,4),
-	affiche_ligne(Plateau,3),
-	affiche_ligne(Plateau,2),
-	affiche_ligne(Plateau,1),
-	write('\t+------------------+\n').
+	write('  +-------------+'), nl,
+	write('6 '), affiche_ligne(Plateau,6),
+	write('5 '), affiche_ligne(Plateau,5),
+	write('4 '), affiche_ligne(Plateau,4),
+	write('3 '), affiche_ligne(Plateau,3),
+	write('2 '), affiche_ligne(Plateau,2),
+	write('1 '), affiche_ligne(Plateau,1),
+	write('  +-------------+'), nl,
+	write('    1 2 3 4 5 6  '), nl, nl.
 
 
 %position_sur_plateau([?X,?Y]): Défini si une position est sur le plateau ou non.
@@ -357,7 +384,7 @@ gyges:-
 	abolish(plateau/1),
 	abolish(tour/1),
 	abolish(type_joueur/2),
-	%logo,
+	logo,
 	menu.
 
 % http://www.network-science.de/ascii/
@@ -382,7 +409,7 @@ menu:-
 	write('3. Machine vs Machine'), nl,
 	nl,
 	write('Mode de jeu ? '),
-	read(Mode), nl,
+	read(Mode),
 	jouer_mode(Mode).
 	%jouer_mode(1).
 
@@ -391,13 +418,25 @@ parser_nombre(AA,[A1,A2]):-
 	A1 is AA // 10,
 	A2 is AA mod 10.
 	
+parser_nombre2(v,v).
+parser_nombre2(AA,[A1,A2]):-
+	AA is A1 * 10 + A2.
+
 convertir_notation(AA*BB,[AA2,BB2]):-
 	parser_nombre(AA,AA2),
-	parser_nombre(BB,BB2).	
+	parser_nombre(BB,BB2).
 convertir_notation(AA*BB=CC,[AA2,BB2,CC2]):-
 	parser_nombre(AA,AA2),
 	parser_nombre(BB,BB2),
 	parser_nombre(CC,CC2).
+	
+convertir_notation2(AA*BB,[AA2,BB2]):-
+	parser_nombre2(AA,AA2),
+	parser_nombre2(BB,BB2).
+convertir_notation2(AA*BB=CC,[AA2,BB2,CC2]):-
+	parser_nombre2(AA,AA2),
+	parser_nombre2(BB,BB2),
+	parser_nombre2(CC,CC2).
 
 saisie_humain(C):-
 	write('Coup (AA*BB ou AA*BB=CC) ? '),
@@ -407,10 +446,10 @@ saisie_humain(C):-
 calculer_coup(humain,P,T,C):-
 	saisie_humain(C),
 	coup(P,T,C).
-	
 calculer_coup(machine,P,T,C):-
-	write('La machine joue.'), nl,
-	coup_machine(P,T,C).
+	coup_machine(P,T,C),
+	convertir_notation2(Notation_externe, C),
+	write('La machine joue '), write(Notation_externe), write('.'), nl.
 	%sleep(1).
 
 jouer_mode(1):-
@@ -430,7 +469,7 @@ jouer:-
 	plateau_depart(P),
 	asserta(plateau(P)),
 	asserta(tour(1)),
-	repeat, (
+	repeat,
 		plateau(P1),
 		tour(I),
 		type_joueur(I,J),
@@ -440,12 +479,16 @@ jouer:-
 		calculer_coup(J,P1,_T,C),
 		appliquer_coup(P1,P2,C),
 		nth(2,C,Y),
-		retract(plateau(P1)),
-		asserta(plateau(P2)),
-		retract(tour(I)),
-		I2 is (I mod 2) + 1,
-		asserta(tour(I2))
-	),
+		%((Y \= v) ->
+			retract(plateau(P1)),
+			asserta(plateau(P2)),
+			retract(tour(I)),
+			I2 is (I mod 2) + 1,
+			asserta(tour(I2)),
+		%),
 	Y = v,
-	write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
+	nl,
+	write('★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆'), nl,
+	write('Le joueur '), write(I), write(' gagne la partie'), nl,
+	write('★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆'), nl,
 	!.
