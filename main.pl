@@ -64,32 +64,35 @@ joueurInverse(Plateau,s):-
 %	write('1 '), affiche_ligne(Plateau,1),
 %	write('   1   2   3   4   5   6  \n').
 
-%affiche_elem(+Plateau,+Position)
-affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
-affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
-affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('3 '),!.
-affiche_elem(_,_):-write('· ').
 
-%affiche_ligne(+Plateau,+Ligne)
-affiche_ligne(Plateau,Ligne):-
+affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_simple(Plateau,Pions),member(Position,Pions),format("\033\[31m1 \033\[00m",[]),!.
+affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_double(Plateau,Pions),member(Position,Pions),format("\033\[31m2 \033\[00m",[]),!.
+affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_triple(Plateau,Pions),member(Position,Pions),format("\033\[31m3 \033\[00m",[]),!.
+affiche_elem(_Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),format("\033\[31m. \033\[00m",[]),!.
+
+affiche_elem(Plateau,_Trajet,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
+affiche_elem(Plateau,_Trajet,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
+affiche_elem(Plateau,_Trajet,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('3 '),!.
+affiche_elem(_Plateau,_Trajet,_Position):-write('· '),!.
+
+affiche_ligne(Plateau,Trajet,Ligne):-
 	write('║ '),
-	affiche_elem(Plateau,[1,Ligne]),
-	affiche_elem(Plateau,[2,Ligne]),
-	affiche_elem(Plateau,[3,Ligne]),
-	affiche_elem(Plateau,[4,Ligne]),
-	affiche_elem(Plateau,[5,Ligne]),
-	affiche_elem(Plateau,[6,Ligne]),
+	affiche_elem(Plateau,Trajet,[1,Ligne]),
+	affiche_elem(Plateau,Trajet,[2,Ligne]),
+	affiche_elem(Plateau,Trajet,[3,Ligne]),
+	affiche_elem(Plateau,Trajet,[4,Ligne]),
+	affiche_elem(Plateau,Trajet,[5,Ligne]),
+	affiche_elem(Plateau,Trajet,[6,Ligne]),
 	write('║\n').
 
-%affiche_plateau(+Plateau)
-affiche_plateau(Plateau):-
+affiche_plateau(Plateau,Trajet):-
 	write('  ╔═════════════╗'), nl,
-	write('6 '), affiche_ligne(Plateau,6),
-	write('5 '), affiche_ligne(Plateau,5),
-	write('4 '), affiche_ligne(Plateau,4),
-	write('3 '), affiche_ligne(Plateau,3),
-	write('2 '), affiche_ligne(Plateau,2),
-	write('1 '), affiche_ligne(Plateau,1),
+	write('6 '), affiche_ligne(Plateau,Trajet,6),
+	write('5 '), affiche_ligne(Plateau,Trajet,5),
+	write('4 '), affiche_ligne(Plateau,Trajet,4),
+	write('3 '), affiche_ligne(Plateau,Trajet,3),
+	write('2 '), affiche_ligne(Plateau,Trajet,2),
+	write('1 '), affiche_ligne(Plateau,Trajet,1),
 	write('  ╚═════════════╝'), nl,
 	write('    1 2 3 4 5 6  '), nl, nl.
 
@@ -299,6 +302,9 @@ coup(Plateau,Trajet,Coup):-
 
 %%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
+
+appliquer_coup(Plateau,Plateau,[_,v]). %Si c'est un coup final, on touche pas le plateau
+
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):- 
 	pions_simple(PlateauIN,ListPionIN),
 	member(Depart,ListPionIN),
@@ -348,24 +354,23 @@ coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(PlateauOUT,_,[_,v]).	%On peut gagner au second tour
 
 
-tous_les_coups_seront_battus(_,[]).
-tous_les_coups_seront_battus(Plateau,[Coup|ListCoup]):-
-	appliquer_coup(Plateau,P2,Coup),
-	coup(P2,_,[_,v]),
-	tous_les_coups_seront_battus(Plateau,ListCoup).
+tous_les_plateaux_seront_battus(_,[]).
+tous_les_plateaux_seront_battus([Plateau|ListPlateau]):-
+	coup(Plateau,_,[_,v]),
+	tous_les_plateaux_seront_battus(ListPlateau).
 
 coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauTMP,Coup),
 	\+coup(PlateauTMP,_,[_,v]),	%L'ennemi ne gagne pas au prochain coup
-	setof(CoupEnnemi,PlateauTMP^T^coup(PlateauTMP,T,CoupEnnemi),ListCoupEnnemi),
-	tous_les_coups_seront_battus(PlateauTMP,ListCoupEnnemi).
+	setof(PlateauOUT,PlateauTMP^T^(coup(PlateauTMP,T,CoupEnnemi),appliquer_coup(PlateauTMP,PlateauOUT,CoupEnnemi)),ListPlateau),
+	tous_les_plateaux_seront_battus(ListPlateau).
 	
 coup_machine(Plateau,Trajet,[Depart,v]):-
    coup(Plateau,Trajet,[Depart,v]),!.
 
-coup_machine(Plateau,Trajet,Coup):-
-   coup_va_gagner_en_2_coups(Plateau,Trajet,Coup),!.
+%coup_machine(Plateau,Trajet,Coup):-
+%   coup_va_gagner_en_2_coups(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
    coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
@@ -468,15 +473,16 @@ jouer:-
 	plateau_depart(P),
 	asserta(plateau(P)),
 	asserta(tour(1)),
+	affiche_plateau(P,[]),
 	repeat,
 		plateau(P1),
 		tour(I),
 		type_joueur(I,J),
 		nl,
-		affiche_plateau(P1),
 		write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
-		calculer_coup(J,P1,_T,C),
+		calculer_coup(J,P1,T,C),
 		appliquer_coup(P1,P2,C),
+		affiche_plateau(P2,T),
 		nth(2,C,Y),
 		%((Y \= v) ->
 			retract(plateau(P1)),
