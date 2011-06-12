@@ -68,7 +68,7 @@ joueurInverse(Plateau,s):-
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_simple(Plateau,Pions),member(Position,Pions),format("\033\[31m1 \033\[00m",[]),!.
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_double(Plateau,Pions),member(Position,Pions),format("\033\[31m2 \033\[00m",[]),!.
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_triple(Plateau,Pions),member(Position,Pions),format("\033\[31m3 \033\[00m",[]),!.
-affiche_elem(_Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),format("\033\[31m. \033\[00m",[]),!.
+affiche_elem(_Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),format("\033\[31m· \033\[00m",[]),!.
 
 affiche_elem(Plateau,_Trajet,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
 affiche_elem(Plateau,_Trajet,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
