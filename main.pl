@@ -64,7 +64,6 @@ joueurInverse(Plateau,s):-
 %	write('1 '), affiche_ligne(Plateau,1),
 %	write('   1   2   3   4   5   6  \n').
 
-
 %affiche_elem(+Plateau,+Position)
 affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
 affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
@@ -73,25 +72,25 @@ affiche_elem(_,_):-write('· ').
 
 %affiche_ligne(+Plateau,+Ligne)
 affiche_ligne(Plateau,Ligne):-
-	write('| '),
+	write('║ '),
 	affiche_elem(Plateau,[1,Ligne]),
 	affiche_elem(Plateau,[2,Ligne]),
 	affiche_elem(Plateau,[3,Ligne]),
 	affiche_elem(Plateau,[4,Ligne]),
 	affiche_elem(Plateau,[5,Ligne]),
 	affiche_elem(Plateau,[6,Ligne]),
-	write('|\n').
+	write('║\n').
 
 %affiche_plateau(+Plateau)
 affiche_plateau(Plateau):-
-	write('  +-------------+'), nl,
+	write('  ╔═════════════╗'), nl,
 	write('6 '), affiche_ligne(Plateau,6),
 	write('5 '), affiche_ligne(Plateau,5),
 	write('4 '), affiche_ligne(Plateau,4),
 	write('3 '), affiche_ligne(Plateau,3),
 	write('2 '), affiche_ligne(Plateau,2),
 	write('1 '), affiche_ligne(Plateau,1),
-	write('  +-------------+'), nl,
+	write('  ╚═════════════╝'), nl,
 	write('    1 2 3 4 5 6  '), nl, nl.
 
 
