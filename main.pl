@@ -364,6 +364,7 @@ menu(Theme):-
 	nl,
 	write('Mode de jeu ? '),
 	read(Mode),
+	nl,
 	jouer_mode(Mode,Theme).
 	%jouer_mode(1).
 
@@ -534,7 +535,6 @@ jouer(Theme):-
 		plateau(P1),
 		tour(I),
 		type_joueur(I,J),
-		nl,
 		write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
 		calculer_coup(J,P1,T,C),
 		appliquer_coup(P1,P2,C),
