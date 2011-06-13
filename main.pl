@@ -303,7 +303,7 @@ coup(Plateau,Trajet,Coup):-
 %%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
 
-appliquer_coup(Plateau,Plateau,[_,v]). %Si c'est un coup final, on touche pas le plateau
+appliquer_coup(Plateau,Plateau,[_,v]):-!. %Si c'est un coup final, on touche pas le plateau
 
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):- 
 	pions_simple(PlateauIN,ListPionIN),
@@ -313,7 +313,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_double(PlateauIN,Pions2),
 	pions_triple(PlateauIN,Pions3),
 	joueurInverse(PlateauIN,Joueur),
-	PlateauOUT=[ListPionOUT,Pions2,Pions3,Joueur].
+	PlateauOUT=[ListPionOUT,Pions2,Pions3,Joueur],!.
 	
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_double(PlateauIN,ListPionIN),
@@ -323,7 +323,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_simple(PlateauIN,Pions1),
 	pions_triple(PlateauIN,Pions3),
 	joueurInverse(PlateauIN,Joueur),
-	PlateauOUT=[Pions1,ListPionOUT,Pions3,Joueur].
+	PlateauOUT=[Pions1,ListPionOUT,Pions3,Joueur],!.
 
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_triple(PlateauIN,ListPionIN),
@@ -333,7 +333,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 	pions_simple(PlateauIN,Pions1),
 	pions_double(PlateauIN,Pions2),
 	joueurInverse(PlateauIN,Joueur),
-	PlateauOUT=[Pions1,Pions2,ListPionOUT,Joueur].
+	PlateauOUT=[Pions1,Pions2,ListPionOUT,Joueur],!.
 
 
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
@@ -343,7 +343,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
 	pions_simple(PlateauTMP2,Pions1),
 	pions_double(PlateauTMP2,Pions2),
 	pions_triple(PlateauTMP2,Pions3),
-	PlateauOUT=[Pions1,Pions2,Pions3,Joueur].
+	PlateauOUT=[Pions1,Pions2,Pions3,Joueur],!.
 
 coup_imparable(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
@@ -371,6 +371,10 @@ coup_va_gagner_en_2_coups(Plateau,Trajet,Coup):-
 	setof(PlateauOUT,PlateauTMP^T^(coup(PlateauTMP,T,CoupEnnemi),appliquer_coup(PlateauTMP,PlateauOUT,CoupEnnemi)),ListPlateau),
 	tous_les_plateaux_seront_battus(ListPlateau).
 	
+
+coup_humain(Plateau,Trajet,Coup):-
+    coup(Plateau,Trajet,Coup),!.
+
 coup_machine(Plateau,Trajet,[Depart,v]):-
    coup(Plateau,Trajet,[Depart,v]),!.
 
@@ -454,7 +458,7 @@ saisie_humain(C):-
 	
 calculer_coup(humain,P,T,C):-
 	saisie_humain(C),
-	coup(P,T,C).
+	coup_humain(P,T,C).
 calculer_coup(machine,P,T,C):-
 	coup_machine(P,T,C),
 	convertir_notation2(Notation_externe, C),
