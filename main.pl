@@ -4,8 +4,8 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ [[simples], [doubles], [triples], joueur_courant]
-plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
-%plateau_depart([[[3,4],[6,6]],[[3,5]],[[6,1]],s]).
+%plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
+plateau_depart([[[1,6],[3,1],[3,5],[5,5]],[[2,6],[4,4],[5,1],[5,3]],[[4,1],[3,4],[6,1],[6,6]],s]).
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
@@ -474,12 +474,12 @@ afficher_plateau(2,Plateau,_Trajet):-
 	write('1 '), afficher_ligne(2,Plateau,_Trajet,1),
 	write('   1   2   3   4   5   6  \n').
 
-parser_nombre(v,v).
+parser_nombre(v,v):-!.
 parser_nombre(AA,[A1,A2]):-
 	A1 is AA // 10,
 	A2 is AA mod 10.
 	
-parser_nombre2(v,v).
+parser_nombre2(v,v):-!.
 parser_nombre2(AA,[A1,A2]):-
 	AA is A1 * 10 + A2.
 
@@ -548,7 +548,6 @@ jouer(Theme):-
 			asserta(tour(I2)),
 		%),
 	Y = v,
-	nl,
 	write('★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆'), nl,
 	write('Le joueur '), write(I), write(' gagne la partie'), nl,
 	write('★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆'), nl,
