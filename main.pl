@@ -265,42 +265,6 @@ position_apres_remplacement_valide(Plateau,[X,Y]):-
 	lignes_dessous_contiennent_pions(Plateau,Y),
 	position_libre(Plateau,[X,Y]).
 
-%%% Prédicats "End-User"
-
-%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
-%Defini un coup entier sans remplacement
-coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
-	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
-
-coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
-	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
-	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
-coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
-	position_sur_depart(Plateau,Depart),
-	coup_sans_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive]).
-
-%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
-%Defini un coup entier avec remplacement
-coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
-	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
-	position_apres_remplacement_valide(Plateau,Remplacement).
-
-coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
-	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
-	coup_avec_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
-
-coup_avec_remplacement(Plateau,Trajet,[Depart,Arrive,Remplacement]):-
-	position_sur_depart(Plateau,Depart),
-	coup_avec_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive,Remplacement]).
-
-coup(Plateau,Trajet,Coup):-
-	coup_sans_remplacement(Plateau,Trajet,Coup).
-
-coup(Plateau,Trajet,Coup):-
-	coup_avec_remplacement(Plateau,Trajet,Coup).
-
-
-%%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
 
 appliquer_coup(Plateau,Plateau,[_,v]):-!. %Si c'est un coup final, on touche pas le plateau
@@ -344,6 +308,45 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
 	pions_double(PlateauTMP2,Pions2),
 	pions_triple(PlateauTMP2,Pions3),
 	PlateauOUT=[Pions1,Pions2,Pions3,Joueur],!.
+
+
+%%% Prédicats "End-User"
+
+%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
+%Defini un coup entier sans remplacement
+coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+	coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive).
+
+coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]):-
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
+	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
+coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
+	position_sur_depart(Plateau,Depart),
+	coup_sans_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive]).
+
+%coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
+%Defini un coup entier avec remplacement
+coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
+	appliquer_coup(Plateau,PlateauTMP,[Depart,Arrive]),
+	position_apres_remplacement_valide(PlateauTMP,Remplacement).
+
+coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
+	coup_avec_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
+
+coup_avec_remplacement(Plateau,Trajet,[Depart,Arrive,Remplacement]):-
+	position_sur_depart(Plateau,Depart),
+	coup_avec_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive,Remplacement]).
+
+coup(Plateau,Trajet,Coup):-
+	coup_sans_remplacement(Plateau,Trajet,Coup).
+
+coup(Plateau,Trajet,Coup):-
+	coup_avec_remplacement(Plateau,Trajet,Coup).
+
+
+%%%
 
 coup_imparable(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
