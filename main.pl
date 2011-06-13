@@ -338,7 +338,12 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive]):-
 
 appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
 	appliquer_coup(PlateauIN,PlateauTMP,[Arrive,Remplacement]),
-	appliquer_coup(PlateauTMP,PlateauOUT,[Depart,Arrive]).
+	appliquer_coup(PlateauTMP,PlateauTMP2,[Depart,Arrive]),
+	joueurInverse(PlateauTMP2,Joueur),
+	pions_simple(PlateauTMP2,Pions1),
+	pions_double(PlateauTMP2,Pions2),
+	pions_triple(PlateauTMP2,Pions3),
+	PlateauOUT=[Pions1,Pions2,Pions3,Joueur].
 
 coup_imparable(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
@@ -497,3 +502,10 @@ jouer:-
 	write('Le joueur '), write(I), write(' gagne la partie'), nl,
 	write('★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆'), nl,
 	!.
+
+% Coups interessants:
+%51*53.
+%31*42.
+%11*55.
+%41*55=41 ou 41*55=11
+
