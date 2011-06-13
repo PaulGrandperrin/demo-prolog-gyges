@@ -64,7 +64,6 @@ joueurInverse(Plateau,s):-
 %	write('1 '), affiche_ligne(Plateau,1),
 %	write('   1   2   3   4   5   6  \n').
 
-
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_simple(Plateau,Pions),member(Position,Pions),format("\033\[31m1 \033\[00m",[]),!.
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_double(Plateau,Pions),member(Position,Pions),format("\033\[31m2 \033\[00m",[]),!.
 affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_triple(Plateau,Pions),member(Position,Pions),format("\033\[31m3 \033\[00m",[]),!.
@@ -163,32 +162,32 @@ lignes_dessus_contiennent_pions(Plateau,Ligne):-plusun(Ligne,Ligne2),lignes_dess
 
 %%%%%%%%
 
-pion_sur_depart(Plateau,[X,1]):-
+position_sur_depart(Plateau,[X,1]):-
 	joueur(Plateau,s),
 	position_occupee(Plateau,[X,1]).
 
-pion_sur_depart(Plateau,[X,Y]):-
+position_sur_depart(Plateau,[X,Y]):-
 	joueur(Plateau,s),
 	position_occupee(Plateau,[X,Y]),
 	plusun(YmoinsUn,Y),
 	\+lignes_dessous_contiennent_pions(Plateau,YmoinsUn).
 
-pion_sur_depart(Plateau,[X,6]):-
+position_sur_depart(Plateau,[X,6]):-
 	joueur(Plateau,n),
 	position_occupee(Plateau,[X,6]).
 
-pion_sur_depart(Plateau,[X,Y]):-
+position_sur_depart(Plateau,[X,Y]):-
 	joueur(Plateau,n),
 	position_occupee(Plateau,[X,Y]),
 	plusun(Y,YplusUn),
 	\+lignes_dessus_contiennent_pions(Plateau,YplusUn).
 
 
-pion_sur_derniere_ligne(Plateau,[_,Y]):-
+position_sur_derniere_ligne(Plateau,[_,Y]):-
 	joueur(Plateau,n),
 	Y=1.
 
-pion_sur_derniere_ligne(Plateau,[_,Y]):-
+position_sur_derniere_ligne(Plateau,[_,Y]):-
 	joueur(Plateau,s),
 	Y=6.
 
@@ -196,14 +195,14 @@ pion_sur_derniere_ligne(Plateau,[_,Y]):-
 %Defini les coups possibles sans remplacement sans rebonds. La case finale est une case libre 
 coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_simple(Plateau,Pions_simple),member(Depart,Pions_simple),	%Le pion de départ est un pion simple
-	pion_sur_derniere_ligne(Plateau,Depart),
+	position_sur_derniere_ligne(Plateau,Depart),
 	Arrive=v,
 	TrajetApres=[[Depart,Arrive]|TrajetAvant].
 
 coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_double(Plateau,Pions_double),member(Depart,Pions_double),	%Le pion de départ est un pion double
 	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Intermediaire),TrajetInter=[[Depart,Intermediaire]|TrajetAvant],
-	pion_sur_derniere_ligne(Plateau,Intermediaire),
+	position_sur_derniere_ligne(Plateau,Intermediaire),
 	Arrive=v,
 	TrajetApres=[[Depart,Arrive]|TrajetInter].
 
@@ -211,7 +210,7 @@ coup_simple_vers_libre(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 	pions_triple(Plateau,Pions_triple),member(Depart,Pions_triple),	%Le pion de départ est un pion triple
 	deplacement_possible_vers_libre(Plateau,TrajetAvant,Depart,Intermediaire1),TrajetInter1=[[Depart,Intermediaire1]|TrajetAvant],
 	deplacement_possible_vers_libre(Plateau,TrajetInter1,Intermediaire1,Intermediaire2),TrajetInter2=[[Intermediaire1,Intermediaire2]|TrajetInter1],
-	pion_sur_derniere_ligne(Plateau,Intermediaire2),
+	position_sur_derniere_ligne(Plateau,Intermediaire2),
 	Arrive=v,
 	TrajetApres=[[Depart,Arrive]|TrajetInter2].
 
@@ -257,12 +256,12 @@ coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive):-
 %position_apres_remplacement_valide(+Plateau,[?X,?Y])
 %Defini si une position après remplacement est valide en fonction du plateau et du joueur qui joue le coup
 position_apres_remplacement_valide(Plateau,[X,Y]):-
-	nth(4,Plateau,s),	%c'est à Sud de jouer
+	joueur(Plateau,s),	%c'est à Sud de jouer
 	lignes_dessus_contiennent_pions(Plateau,Y),
 	position_libre(Plateau,[X,Y]).
 
 position_apres_remplacement_valide(Plateau,[X,Y]):-
-	nth(4,Plateau,n),	%c'est à Nord de jouer
+	joueur(Plateau,n),	%c'est à Nord de jouer
 	lignes_dessous_contiennent_pions(Plateau,Y),
 	position_libre(Plateau,[X,Y]).
 
@@ -277,7 +276,7 @@ coup_sans_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive]
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediare),
 	coup_sans_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediare,Arrive]).
 coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
-	pion_sur_depart(Plateau,Depart),
+	position_sur_depart(Plateau,Depart),
 	coup_sans_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive]).
 
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
@@ -291,7 +290,7 @@ coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,
 	coup_avec_remplacement_recursif(Plateau,TrajetInter,TrajetApres,[Intermediaire,Arrive,Remplacement]).
 
 coup_avec_remplacement(Plateau,Trajet,[Depart,Arrive,Remplacement]):-
-	pion_sur_depart(Plateau,Depart),
+	position_sur_depart(Plateau,Depart),
 	coup_avec_remplacement_recursif(Plateau,[],Trajet, [Depart,Arrive,Remplacement]).
 
 coup(Plateau,Trajet,Coup):-
@@ -299,6 +298,7 @@ coup(Plateau,Trajet,Coup):-
 
 coup(Plateau,Trajet,Coup):-
 	coup_avec_remplacement(Plateau,Trajet,Coup).
+
 
 %%%
 %appliquer_coup(+PlateauIN,-PlateauOUT,[Depart,Arrive]):-
@@ -340,7 +340,7 @@ appliquer_coup(PlateauIN,PlateauOUT,[Depart,Arrive,Remplacement]):-
 	appliquer_coup(PlateauIN,PlateauTMP,[Arrive,Remplacement]),
 	appliquer_coup(PlateauTMP,PlateauOUT,[Depart,Arrive]).
 
-coup_imparable1(Plateau,Trajet,Coup):-
+coup_imparable(Plateau,Trajet,Coup):-
 	coup(Plateau,Trajet,Coup),
 	appliquer_coup(Plateau,PlateauOUT,Coup),
 	\+coup(PlateauOUT,_,[_,v]).
@@ -376,7 +376,7 @@ coup_machine(Plateau,Trajet,Coup):-
    coup_peut_gagner_en_2_coups(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
-   coup_imparable1(Plateau,Trajet,Coup),!.
+   coup_imparable(Plateau,Trajet,Coup),!.
 
 coup_machine(Plateau,Trajet,Coup):-
    coup(Plateau,Trajet,Coup),!.
