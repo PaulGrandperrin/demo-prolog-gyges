@@ -33,69 +33,6 @@ joueurInverse(Plateau,n):-
 joueurInverse(Plateau,s):-
 	joueur(Plateau,n).
 
-% Damier alternative	
-%%affiche_elem(+Plateau,+Position)
-%affiche_elem(Plateau,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('(1)'),!.
-%affiche_elem(Plateau,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('(2)'),!.
-%affiche_elem(Plateau,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('(3)'),!.
-%affiche_elem(_,_):-write('( )').
-%
-%%affiche_ligne(+Plateau,+Ligne)
-%affiche_ligne(Plateau,Ligne):-
-%	affiche_elem(Plateau,[1,Ligne]), write('—'),
-%	affiche_elem(Plateau,[2,Ligne]), write('—'),
-%	affiche_elem(Plateau,[3,Ligne]), write('—'),
-%	affiche_elem(Plateau,[4,Ligne]), write('—'),
-%	affiche_elem(Plateau,[5,Ligne]), write('—'),
-%	affiche_elem(Plateau,[6,Ligne]), nl.
-%
-%%affiche_plateau(+Plateau)
-%affiche_plateau(Plateau):-
-%	write('6 '), affiche_ligne(Plateau,6),
-%	write('   |   |   |   |   |   | '), nl,
-%	write('5 '), affiche_ligne(Plateau,5),
-%	write('   |   |   |   |   |   | '), nl,
-%	write('4 '), affiche_ligne(Plateau,4),
-%	write('   |   |   |   |   |   | '), nl,
-%	write('3 '), affiche_ligne(Plateau,3),
-%	write('   |   |   |   |   |   | '), nl,
-%	write('2 '), affiche_ligne(Plateau,2),
-%	write('   |   |   |   |   |   | '), nl,
-%	write('1 '), affiche_ligne(Plateau,1),
-%	write('   1   2   3   4   5   6  \n').
-
-affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_simple(Plateau,Pions),member(Position,Pions),format("\033\[31m1 \033\[00m",[]),!.
-affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_double(Plateau,Pions),member(Position,Pions),format("\033\[31m2 \033\[00m",[]),!.
-affiche_elem(Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),pions_triple(Plateau,Pions),member(Position,Pions),format("\033\[31m3 \033\[00m",[]),!.
-affiche_elem(_Plateau,Trajet,Position):-member(Coup,Trajet),member(Position,Coup),format("\033\[31m· \033\[00m",[]),!.
-
-affiche_elem(Plateau,_Trajet,Position):-pions_simple(Plateau,Pions),member(Position,Pions),write('1 '),!.
-affiche_elem(Plateau,_Trajet,Position):-pions_double(Plateau,Pions),member(Position,Pions),write('2 '),!.
-affiche_elem(Plateau,_Trajet,Position):-pions_triple(Plateau,Pions),member(Position,Pions),write('3 '),!.
-affiche_elem(_Plateau,_Trajet,_Position):-write('· '),!.
-
-affiche_ligne(Plateau,Trajet,Ligne):-
-	write('║ '),
-	affiche_elem(Plateau,Trajet,[1,Ligne]),
-	affiche_elem(Plateau,Trajet,[2,Ligne]),
-	affiche_elem(Plateau,Trajet,[3,Ligne]),
-	affiche_elem(Plateau,Trajet,[4,Ligne]),
-	affiche_elem(Plateau,Trajet,[5,Ligne]),
-	affiche_elem(Plateau,Trajet,[6,Ligne]),
-	write('║\n').
-
-affiche_plateau(Plateau,Trajet):-
-	write('  ╔═════════════╗'), nl,
-	write('6 '), affiche_ligne(Plateau,Trajet,6),
-	write('5 '), affiche_ligne(Plateau,Trajet,5),
-	write('4 '), affiche_ligne(Plateau,Trajet,4),
-	write('3 '), affiche_ligne(Plateau,Trajet,3),
-	write('2 '), affiche_ligne(Plateau,Trajet,2),
-	write('1 '), affiche_ligne(Plateau,Trajet,1),
-	write('  ╚═════════════╝'), nl,
-	write('    1 2 3 4 5 6  '), nl, nl.
-
-
 %position_sur_plateau([?X,?Y]): Défini si une position est sur le plateau ou non.
 position_sur_plateau([X,Y]):-domaine(X),domaine(Y).
 
@@ -397,12 +334,12 @@ coup_machine(Plateau,Trajet,Coup):-
 
 %%% UI
   
-gyges:-
+gyges(Theme):-
 	abolish(plateau/1),
 	abolish(tour/1),
 	abolish(type_joueur/2),
 	logo,
-	menu.
+	menu(Theme).
 
 % http://www.network-science.de/ascii/
 logo:-
@@ -419,7 +356,7 @@ logo:-
 	write('   \\::/  /         \\:\\__\\    \\::/  /       \\::/  /        /:/  /   '), nl,
 	write('    \\/__/           \\/__/     \\/__/         \\/__/         \\/__/    '), nl.
 
-menu:-
+menu(Theme):-
 	nl,
 	write('1. Humain vs Machine'), nl,
 	write('2. Humain vs Humain'), nl,
@@ -427,8 +364,114 @@ menu:-
 	nl,
 	write('Mode de jeu ? '),
 	read(Mode),
-	jouer_mode(Mode).
+	jouer_mode(Mode,Theme).
 	%jouer_mode(1).
+
+%afficher_case(+Theme,+Plateau,+Trajet,+Position)
+afficher_case(1,Plateau,Trajet,Position):-
+	member(Coup,Trajet),
+	member(Position,Coup),
+	pions_simple(Plateau,Pions),
+	member(Position,Pions),
+	format("\033\[31m1 \033\[00m",[]),
+	!.
+afficher_case(1,Plateau,Trajet,Position):-
+	member(Coup,Trajet),
+	member(Position,Coup),
+	pions_double(Plateau,Pions),
+	member(Position,Pions),
+	format("\033\[31m2 \033\[00m",[]),
+	!.
+afficher_case(1,Plateau,Trajet,Position):-
+	member(Coup,Trajet),
+	member(Position,Coup),
+	pions_triple(Plateau,Pions),
+	member(Position,Pions),
+	format("\033\[31m3 \033\[00m",[]),
+	!.
+afficher_case(1,_Plateau,Trajet,Position):-
+	member(Coup,Trajet),
+	member(Position,Coup),
+	format("\033\[31m· \033\[00m",[]),
+	!.
+afficher_case(1,Plateau,_Trajet,Position):-
+	pions_simple(Plateau,Pions),
+	member(Position,Pions),
+	write('1 '),
+	!.
+afficher_case(1,Plateau,_Trajet,Position):-
+	pions_double(Plateau,Pions),
+	member(Position,Pions),
+	write('2 '),
+	!.
+afficher_case(1,Plateau,_Trajet,Position):-
+	pions_triple(Plateau,Pions),
+	member(Position,Pions),
+	write('3 '),
+	!.
+afficher_case(1,_Plateau,_Trajet,_Position):-
+	write('· '),
+	!.
+afficher_case(2,Plateau,_Trajet,Position):-
+	pions_simple(Plateau,Pions),
+	member(Position,Pions),
+	write('(1)'),
+	!.
+afficher_case(2,Plateau,_Trajet,Position):-
+	pions_double(Plateau,Pions),
+	member(Position,Pions),
+	write('(2)'),
+	!.
+afficher_case(2,Plateau,_Trajet,Position):-
+	pions_triple(Plateau,Pions),
+	member(Position,Pions),
+	write('(3)'),
+	!.
+afficher_case(2,_,_Trajet,_):-
+	write('( )').
+
+%afficher_ligne(+Theme,+Plateau,+Trajet,+Ligne)
+afficher_ligne(1,Plateau,Trajet,Ligne):-
+	write('║ '),
+	afficher_case(1,Plateau,Trajet,[1,Ligne]),
+	afficher_case(1,Plateau,Trajet,[2,Ligne]),
+	afficher_case(1,Plateau,Trajet,[3,Ligne]),
+	afficher_case(1,Plateau,Trajet,[4,Ligne]),
+	afficher_case(1,Plateau,Trajet,[5,Ligne]),
+	afficher_case(1,Plateau,Trajet,[6,Ligne]),
+	write('║\n').
+afficher_ligne(2,Plateau,_Trajet,Ligne):-
+	afficher_case(2,Plateau,_Trajet,[1,Ligne]), write('—'),
+	afficher_case(2,Plateau,_Trajet,[2,Ligne]), write('—'),
+	afficher_case(2,Plateau,_Trajet,[3,Ligne]), write('—'),
+	afficher_case(2,Plateau,_Trajet,[4,Ligne]), write('—'),
+	afficher_case(2,Plateau,_Trajet,[5,Ligne]), write('—'),
+	afficher_case(2,Plateau,_Trajet,[6,Ligne]), nl.
+
+%afficher_plateau(+Theme,+Plateau)
+afficher_plateau(1,Plateau,Trajet):-
+	write('  ╔═════════════╗'), nl,
+	write('6 '), afficher_ligne(1,Plateau,Trajet,6),
+	write('5 '), afficher_ligne(1,Plateau,Trajet,5),
+	write('4 '), afficher_ligne(1,Plateau,Trajet,4),
+	write('3 '), afficher_ligne(1,Plateau,Trajet,3),
+	write('2 '), afficher_ligne(1,Plateau,Trajet,2),
+	write('1 '), afficher_ligne(1,Plateau,Trajet,1),
+	write('  ╚═════════════╝'), nl,
+	write('    1 2 3 4 5 6  '), nl, nl.
+afficher_plateau(2,Plateau,_Trajet):-
+	write('6 '), afficher_ligne(2,Plateau,_Trajet,6),
+	write('   |   |   |   |   |   | '), nl,
+	write('5 '), afficher_ligne(2,Plateau,_Trajet,5),
+	write('   |   |   |   |   |   | '), nl,
+	write('4 '), afficher_ligne(2,Plateau,_Trajet,4),
+	write('   |   |   |   |   |   | '), nl,
+	write('3 '), afficher_ligne(2,Plateau,_Trajet,3),
+	write('   |   |   |   |   |   | '), nl,
+	write('2 '), afficher_ligne(2,Plateau,_Trajet,2),
+	write('   |   |   |   |   |   | '), nl,
+	write('1 '), afficher_ligne(2,Plateau,_Trajet,1),
+	write('   1   2   3   4   5   6  \n').
 
 parser_nombre(v,v).
 parser_nombre(AA,[A1,A2]):-
@@ -469,24 +512,24 @@ calculer_coup(machine,P,T,C):-
 	write('La machine joue '), write(Notation_externe), write('.'), nl.
 	%sleep(1).
 
-jouer_mode(1):-
+jouer_mode(1,Theme):-
 	asserta(type_joueur(1,humain)),
 	asserta(type_joueur(2,machine)),
-	jouer.
-jouer_mode(2):-
+	jouer(Theme).
+jouer_mode(2,Theme):-
 	asserta(type_joueur(1,humain)),
 	asserta(type_joueur(2,humain)),
-	jouer.
-jouer_mode(3):-
+	jouer(Theme).
+jouer_mode(3,Theme):-
 	asserta(type_joueur(1,machine)),
 	asserta(type_joueur(2,machine)),
-	jouer.	
+	jouer(Theme).	
 
-jouer:-
+jouer(Theme):-
 	plateau_depart(P),
 	asserta(plateau(P)),
 	asserta(tour(1)),
-	affiche_plateau(P,[]),
+	afficher_plateau(Theme,P,[]),
 	repeat,
 		plateau(P1),
 		tour(I),
@@ -495,7 +538,7 @@ jouer:-
 		write('Le joueur '), write(I), write(' ('), write(J), write(') a la main.'), nl,
 		calculer_coup(J,P1,T,C),
 		appliquer_coup(P1,P2,C),
-		affiche_plateau(P2,T),
+		afficher_plateau(Theme,P2,T),
 		nth(2,C,Y),
 		%((Y \= v) ->
 			retract(plateau(P1)),
