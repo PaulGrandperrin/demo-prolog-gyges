@@ -327,9 +327,10 @@ coup_sans_remplacement(Plateau,Trajet, [Depart,Arrive]):-
 %coup_sans_remplacement(+Plateau,?TrajetAvant,?TrajetApres, [?Depart,?Arrive])
 %Defini un coup entier avec remplacement
 coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
-	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetApres,Depart,Arrive),
+	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetTMP,Depart,Arrive),
 	appliquer_coup(Plateau,PlateauTMP,[Depart,Arrive]),
-	position_apres_remplacement_valide(PlateauTMP,Remplacement).
+	position_apres_remplacement_valide(PlateauTMP,Remplacement),
+	TrajetApres=[[Remplacement,Remplacement]|TrajetTMP].
 
 coup_avec_remplacement_recursif(Plateau,TrajetAvant,TrajetApres, [Depart,Arrive,Remplacement]):-
 	coup_simple_vers_occupee(Plateau,TrajetAvant,TrajetInter,Depart,Intermediaire),
