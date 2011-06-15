@@ -4,8 +4,8 @@
 %Lien: [caseA,caseB]
 
 %plateau_depart(-Plateau): Défini le plateau de départ [[simples], [doubles], [triples], joueur_courant]
-%plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
-plateau_depart([[[1,6],[3,1],[3,5],[5,5]],[[2,6],[4,4],[5,1],[5,3]],[[4,1],[3,4],[6,1],[6,6]],s]).
+plateau_depart([[[4,1],[6,1],[2,6],[6,6]],[[3,1],[5,1],[1,6],[5,6]],[[1,1],[2,1],[3,6],[4,6]],s]).
+%plateau_depart([[[1,6],[3,1],[3,5],[5,5]],[[2,6],[4,4],[5,1],[5,3]],[[4,1],[3,4],[6,1],[6,6]],s]).
 %domaine(-_):Defini le domaine de validité des abscisses et ordonnées
 domaine(1).
 domaine(2).
@@ -364,7 +364,6 @@ menu(Theme):-
 	nl,
 	write('Mode de jeu ? '),
 	read(Mode),
-	nl,
 	jouer_mode(Mode,Theme).
 	%jouer_mode(1).
 
@@ -451,6 +450,7 @@ afficher_ligne(2,Plateau,_Trajet,Ligne):-
 
 %afficher_plateau(+Theme,+Plateau)
 afficher_plateau(1,Plateau,Trajet):-
+	nl,
 	write('  ╔═════════════╗'), nl,
 	write('6 '), afficher_ligne(1,Plateau,Trajet,6),
 	write('5 '), afficher_ligne(1,Plateau,Trajet,5),
@@ -461,6 +461,7 @@ afficher_plateau(1,Plateau,Trajet):-
 	write('  ╚═════════════╝'), nl,
 	write('    1 2 3 4 5 6  '), nl, nl.
 afficher_plateau(2,Plateau,_Trajet):-
+	nl,
 	write('6 '), afficher_ligne(2,Plateau,_Trajet,6),
 	write('   |   |   |   |   |   | '), nl,
 	write('5 '), afficher_ligne(2,Plateau,_Trajet,5),
@@ -557,5 +558,7 @@ jouer(Theme):-
 %51*53.
 %31*42.
 %11*55.
-%41*55=41 ou 41*55=11
+%41*64.
+%21*23.
+
 
